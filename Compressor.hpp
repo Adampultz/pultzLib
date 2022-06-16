@@ -13,7 +13,7 @@ using namespace pultzLib;
 class Compressor {
     
 public:
-    Compressor();                                                // Default constructor
+    Compressor();
     Compressor(float sampleRate);
     
     void setSampleRate(float sampleRate);
@@ -22,15 +22,13 @@ public:
     
     void setAttack(float attack);
     void setDecay(float decay);
-    float process(float input);                // Get the next sample and update the phase
+    float process(float input);
     
-    ~Compressor() {}                // Destructor
+    ~Compressor() {}
 
 private:
-//    EnvelopeFollower envelope;
-
-    float attack_;           // Input of the filter
-    float decay_;            // Filter difference equation (x)
+    float attack_;
+    float decay_;
     float lastOutput_;
     float sampleRate_;
     float inverseSampleRate_;
@@ -45,6 +43,5 @@ private:
     float c_; 
     
 };
-
 
 #endif /* Compressor_hpp */

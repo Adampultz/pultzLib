@@ -4,7 +4,6 @@
 #include "Delay.h"
 #include <cmath>
 
-// Constructor taking arguments for sample rate and table data
 Delay::Delay(float maxDelayTime, float delayTime, float feedBack, float sampleRate) {
 	setup(maxDelayTime = 1.0, delayTime = 0.2, feedBack = 0.0, sampleRate = 48000);
 }

@@ -17,9 +17,9 @@ class AmpDiff{
 public:
     
     AmpDiff(int size){
-    	size_ = size;
-    	doubleSize_ = size_ * 2;
-    	inverseSize_ = 1 / size_;
+        size_ = size;
+        doubleSize_ = size_ * 2;
+        inverseSize_ = 1 / size_;
         diffs_.resize(doubleSize_);
         amps_.resize(size_);
         tempMeanAmpDiff_.resize(size_);
@@ -31,23 +31,23 @@ public:
     }
     
     //  void mean(){
-    //  	for ()
+    //      for ()
     //     amps_[index] = val;
     // }
     
   void process(){
-  	
-  	meanAmp_ = ampSum_ * inverseSize_;
-  	
-  	for (unsigned int n = 0; n < size_; n++){
-            tempMeanAmpDiff_[n] = fabsf_neon(amps_[n] - meanAmp_);
+      
+      meanAmp_ = ampSum_ * inverseSize_;
+      
+      for (unsigned int n = 0; n < size_; n++){
+            tempMeanAmpDiff_[n] = powf_neon(amps_[n] - meanAmp_, 2);
         };
-  	
-  	float tempAmpDiff_0 = fabsf_neon(amps_[0] - amps_[3]);
-  	float tempAmpDiff_1 = fabsf_neon(amps_[1] - amps_[0]);
-  	float tempAmpDiff_2 = fabsf_neon(amps_[2] - amps_[1]);
-  	float tempAmpDiff_3 = fabsf_neon(amps_[3] - amps_[2]);
-  	
+      
+      float tempAmpDiff_0 = powf_neon(amps_[0] - amps_[3], 2); // Encase in routine?
+      float tempAmpDiff_1 = powf_neon(amps_[1] - amps_[0], 2);
+      float tempAmpDiff_2 = powf_neon(amps_[2] - amps_[1], 2);
+      float tempAmpDiff_3 = powf_neon(amps_[3] - amps_[2], 2);
+      
         diffs_[0] += tempAmpDiff_0 + tempMeanAmpDiff_[0];
         diffs_[1] += tempAmpDiff_1 + tempMeanAmpDiff_[0];
         diffs_[2] += tempAmpDiff_1 + tempMeanAmpDiff_[1];
@@ -75,14 +75,14 @@ public:
     }
     
     void reset(){
-        fill_n(diffs_.begin(), doubleSize_, 0.0); 
+        fill_n(diffs_.begin(), doubleSize_, 0.0);
     }
     
     ~AmpDiff() {}
     
 private:
 
-	int size_;
+    int size_;
     int doubleSize_;
     float inverseSize_;
     float ampSum_;
@@ -94,3 +94,4 @@ private:
 };
 
 #endif /* Operators_h */
+

@@ -3,7 +3,6 @@
 #include "DCBlock.h"
 #include <cmath>
 
-// Constructor taking arguments for sample rate and table data
 DCBlock::DCBlock(float frequency, float sampleRate) {
 	setup(frequency, sampleRate);
 }
@@ -19,13 +18,10 @@ void DCBlock::setup(float frequency, float sampleRate)
 	x_m1 = 0.0f;
 }
 
-// Set the frequency 
 void DCBlock::setFrequency(float frequency) {
 coeff_ = expf(-2.0f * (float)M_PI * (frequency * inverseSampleRate_));
 }
 
-
-// Filter function
 float DCBlock::process(float in) {
 	x_ = in;
 	y_ = x_ - x_m1 + coeff_ * y_m1;

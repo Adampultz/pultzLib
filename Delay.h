@@ -9,7 +9,7 @@ using namespace pultzLib;
 
 class Delay {
 public:
-	Delay() {}													// Default constructor
+	Delay() {}
 	Delay(float maxDelayTime, float delayTime, float feedBack, float sampleRate);
 			  
 	void setup(float maxDelayTime, float delayTime, float feedBack, float sampleRate); 		
@@ -18,16 +18,16 @@ public:
 	void setDelayTime(float delayTime);
 	void setFeedback(float feedBack);
 	
-	float process(float in);				// Get the next sample and update the phase
+	float process(float in);
 	
-	~Delay() {}				// Destructor
+	~Delay() {}
 
 private:
 	
     CircularBuffer<float> buffer_;
 	int maxDelayTime_;  // Maximum delay time in samples
 	int delayTime_;
-	float sampleRate_;           // Samplerate
-	float feedBack_; // Filter difference equation (x)
+	float sampleRate_;
+	float feedBack_; 
 	
 };

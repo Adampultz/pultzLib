@@ -1,10 +1,3 @@
-//
-//  BasicWaveforms.h
-//  Bela Mirror
-//
-//  Created by Adam Pultz Melbye on 10.05.21.
-// Update 27 March 2022
-
 #ifndef BasicWaveforms_h
 #define BasicWaveforms_h
 
@@ -16,7 +9,7 @@ namespace pultzLib {
 
 class Triangle_Wave {
 public:
-    Triangle_Wave() {}                                                    // Default constructor
+    Triangle_Wave() {}
     Triangle_Wave(float fs, int size, int sampleRate);
               
     void initialise(float fs, int size, int sampleRate){
@@ -42,14 +35,14 @@ public:
     };
 
     
-    ~Triangle_Wave() {}              // Destructor
+    ~Triangle_Wave() {}
 
 private:
     
     WaveTable<float> wTable;
     
     int size_;
-    int bufferLength_; // Adjusting the actual buffer to a power of two for masking
+    int bufferLength_; 
     int wrapMask_;
 };
 

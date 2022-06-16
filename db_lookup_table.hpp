@@ -1,10 +1,4 @@
-//
-//  db_lookup_table.hpp
-//  
-//
-//  Created by Adam Pultz Melbye on 15.03.21.
-//
-
+// From Joel De Guzman's q libray
 #ifndef db_lookup_table_h
 #define db_lookup_table_h
 

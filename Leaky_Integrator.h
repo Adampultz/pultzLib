@@ -1,10 +1,3 @@
-//
-//  Leaky_Integrator.hpp
-//  Genetic Algorithm
-//
-//  Created by Adam Pultz Melbye on 15.02.21.
-//
-
 #ifndef Leaky_Integrator_h
 #define Leaky_Integrator_h
 

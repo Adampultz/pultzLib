@@ -11,17 +11,17 @@ public:
 	
 	void setFrequency(float freq);
 	
-	float process(float in);				// Get the next sample and update the phase
+	float process(float in);
 	
-	~DCBlock() {}				// Destructor
+	~DCBlock() {}
 
 private:
 	
-	float coeff_;           // Frequency of the filter
-	float x_;           // Input of the filter
+	float coeff_;
+	float x_;
 	float y_;
-	float x_m1;			// Filter difference equation (x)
-	float y_m1;			 // output of filter (y-1)
+	float x_m1;			
+	float y_m1;
 	float frequency_;
 	float inverseSampleRate_;
 };

@@ -1,6 +1,3 @@
-/***** CircularBuffer.h *****/
-
-
 // Delay line with feedback, linear interpolation and sample-by-sample smoothing ramp
 
 #pragma once

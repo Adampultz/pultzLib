@@ -1,11 +1,3 @@
-//
-//  Integrator.cpp
-//  LoopingAudioSampleBufferAdvancedTutorial - App
-//
-//  Created by Adam Pultz Melbye on 26.12.20.
-//  Copyright © 2020 JUCE. All rights reserved.
-//
-
 #include "Integrator.h"
 
 Integrator::Integrator(float rate, float sampleRate){
@@ -18,8 +10,8 @@ void Integrator::setup(float rate, float sampleRate){
     inverseSampleRate_ = 1.0 / sampleRate;
 }
 
-double Integrator::process(float val){
-    double y = val * rate_ + y_n_m1;
+float Integrator::process(float val){
+    float y = val * rate_ + y_n_m1;
     if(std::isnan(y) == true)
         y = 0.0;
     y_n_m1 = y;

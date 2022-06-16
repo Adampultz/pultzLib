@@ -1,9 +1,3 @@
-//
-//  CrossOver.hpp
-//  LoopingAudioSampleBufferAdvancedTutorial - App
-//
-//  Created by Adam Pultz Melbye on 26.12.20.
-//  Copyright © 2020 JUCE. All rights reserved.
 //  Crossover using one-pole one-zero low and high pass filters in parallel. See Darion SanFillipo 
 
 #pragma once

@@ -1,11 +1,3 @@
-//
-//  CrossOver.hpp
-//  LoopingAudioSampleBufferAdvancedTutorial - App
-//
-//  Created by Adam Pultz Melbye on 26.12.20.
-//  Copyright © 2020 JUCE. All rights reserved.
-//  Crossover using one-pole one-zero low and high pass filters in parallel. See Darion SanFillipo 
-
 #pragma once
 
 #ifndef CrossOver_h
@@ -27,14 +19,14 @@ public:
     
     void setFrequency(float frequency);
     
-    void process(float value, double frequency);
+    void process(float value, float frequency);
     
     float getLow();
     float getHigh();
     
 private:
     float sampleRate_;
-    double inverseSampleRate_;
+    float inverseSampleRate_;
     float w_c;
     float a_;
     float b_0;

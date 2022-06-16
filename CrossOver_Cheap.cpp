@@ -1,10 +1,4 @@
-//
-//  CrossOver.cpp
-//  LoopingAudioSampleBufferAdvancedTutorial - App
-//
-//  Created by Adam Pultz Melbye on 26.12.20.
-//  Copyright © 2020 JUCE. All rights reserved.
-//
+// From a design by dario Sanfilippo
 
 #include "CrossOver_Cheap.h"
 

@@ -1,9 +1,4 @@
-//
-//  Compressor.cpp
-//  Bela Mirror
-//
-//  Created by Adam Pultz Melbye on 24.03.21.
-//
+// Compressor based on a design by xx
 
 #include "Compressor.hpp"
 
@@ -32,7 +27,6 @@ void Compressor::setDecay(float decay) {
 decay_ = decay;
 }
 
-// Filter function
 float Compressor::process(float input) {
     float s_ = input;
     float s_abs_ = fabs(input);

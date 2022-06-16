@@ -1,6 +1,3 @@
-/***** CircularBuffer.h *****/
-
-
 // Delay line with feedback, linear interpolation and sample-by-sample smoothing ramp
 
 #pragma once
@@ -13,7 +10,7 @@ namespace pultzLib {
 template<class T>
 class CircularBuffer {
 public:
-	CircularBuffer() {}													// Default constructor
+	CircularBuffer() {}													
 	CircularBuffer(int size, int delay);
 			  
 	void setup(int size, int delay){

@@ -1,9 +1,3 @@
-//
-//  Leaky_Integrator.cpp
-
-//  Created by Adam Pultz Melbye on 15.02.21.
-//
-
 #include "Leaky_Integrator.h"
 
 Leaky_Integrator::Leaky_Integrator(float coeff){

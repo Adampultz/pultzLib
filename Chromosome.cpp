@@ -43,6 +43,10 @@ vector<float>& Chromosome::getInitPop(){
     return dec_Vals;
 }
 
+// void Chromosome::calcWeigtVar(vector<float> &fitness){
+    
+// }
+
 void Chromosome::select(vector<float> &fitness){
     float fitnessSum_ = 0.0f;
     for (int i = 0; i < popSize_; i++){
