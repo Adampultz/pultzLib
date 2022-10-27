@@ -29,14 +29,10 @@ Adaptive_Comb::Adaptive_Comb(float initFreq, float ampDiffThresh, float schmittL
         amp_ = amp;
         ampDiff_ = ampDiff;
         
-        // fbSgn_ = schmitt_trigger.process(amp);
-        // fbSgn_ = fbSignSmooth.process(fbSgn_);
-     //   fbSgn_ = clamp2((float)fbSgn_, -1.0f, 1.0f);
+        fbSgn_ = schmitt_trigger.process(amp);
+        fbSgn_ = fbSignSmooth.process(fbSgn_);
+    	fbSgn_ = clamp2((float)fbSgn_, -1.0f, 1.0f);
         delayLin.setFeedback(clamp2(float(0.9f - powf_fast(ampDiff_, 2)), 0.0f, 0.9f ) * fbSgn_);
-                // delayLin.setFeedback(clamp2(float(0.9f), 0.0f, 0.9f ) * fbSgn_);
-
-        // delayLin.setFeedback(clamp2(float (0.9f - ampDiff), 0.0f, 0.9f ));
-
     }
     
     float Adaptive_Comb::getFbSgn(){
@@ -69,6 +65,8 @@ Adaptive_Comb::Adaptive_Comb(float initFreq, float ampDiffThresh, float schmittL
         return delayLin.process(sig);
         
     }
+    
+    
     
 
 
