@@ -1,7 +1,6 @@
-/***** CircularBuffer.h *****/
-
-
-// Delay line with feedback, linear interpolation and sample-by-sample smoothing ramp
+/** CircularBuffer.h
+Buffers
+ ****/
 
 #pragma once
 
@@ -10,13 +9,15 @@
 
 namespace pultzLib {
 
+/* Buffer with no interpolation */
+
 template<class T>
 class CircularBuffer {
 public:
 	CircularBuffer() {}	
 	CircularBuffer(int size);
 			  
-	void setup(int size){
+	void init(int size){
         size_ = size;
         bufferLength_ = (unsigned int) (pow(2, ceil(log(size_) / log(2)))); // Round buffer length to nearest power of 2
         wrapMask_ = bufferLength_ - 1;
@@ -24,7 +25,6 @@ public:
     };
     
     T getOldest(){ // Always call before write
-//        int write = writePointer_;
         return buffer_[writePointer_];
     };
 	
@@ -45,7 +45,7 @@ public:
         return buffer_[readPointer_];
     }
 	
-	~CircularBuffer() {}				// Destructor
+	~CircularBuffer() {}
 
 private:
 	
@@ -54,19 +54,22 @@ private:
 	int writePointer_;
 	int readPointer_;
 	int actualReadIndex_;
-	int readIndex_;          // Samplerate
-	int bufferLength_; // Adjusting the actual buffer to a power of two for masking
+	int readIndex_;
+	int bufferLength_;
 	int wrapMask_;
 	
 };
 
+/* Buffer with cubic interpolation */
+
+
 template<class T>
 class CircularBufferC {
 public:
-    CircularBufferC() {}                                                    // Default constructor
+    CircularBufferC() {}
     CircularBufferC(int size, int readIndex);
               
-    void setup(int size, int readIndex){
+    void init(int size, int readIndex){
         readIndex_ = readIndex;
         size_ = size;
         bufferLength_ = (unsigned int) (pow(2, ceil(log(size_) / log(2)))); // Round buffer length to nearest power of 2
@@ -120,7 +123,7 @@ public:
         return ((c3 * y_ + c2) * y_ + c1) * y_ + c0;
     }
     
-    ~CircularBufferC() {}                // Destructor
+    ~CircularBufferC() {}
 
 private:
     
@@ -129,18 +132,20 @@ private:
     int writePointer_;
     int readPointer_;
     int actualReadIndex_;
-    int readIndex_;          // Samplerate
-    int bufferLength_; // Adjusting the actual buffer to a power of two for masking
+    int readIndex_;
+    int bufferLength_;
     int wrapMask_;
 };
+
+/* Buffer with linear interpolation */
 
 template<class T>
 class CircularBufferLin {
 public:
-    CircularBufferLin() {}                                                    // Default constructor
+    CircularBufferLin() {}
     CircularBufferLin(int size, int readIndex);
               
-    void setup(int size, int readIndex){
+    void init(int size, int readIndex){
         readIndex_ = readIndex;
         size_ = size;
         bufferLength_ = (unsigned int) (pow(2, ceil(log(size_) / log(2)))); // Round buffer length to nearest power of 2
@@ -181,12 +186,12 @@ public:
         float fractionAbove = readPointer_ - indexBelow;
         float fractionBelow = 1 - fractionAbove;
         
-        out = (fractionBelow * buffer_[indexBelow]) + (fractionAbove * buffer_[indexAbove]); // Linear interpolation. To Do: Lagrange
+        out = (fractionBelow * buffer_[indexBelow]) + (fractionAbove * buffer_[indexAbove]);
         
         return out;
     }
     
-    ~CircularBufferLin() {}                // Destructor
+    ~CircularBufferLin() {}
 
 private:
     
@@ -195,8 +200,8 @@ private:
     int writePointer_;
     int readPointer_;
     int actualReadIndex_;
-    int readIndex_;          // Samplerate
-    int bufferLength_; // Adjusting the actual buffer to a power of two for masking
+    int readIndex_;
+    int bufferLength_;
     int wrapMask_;
 };
 

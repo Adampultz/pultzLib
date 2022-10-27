@@ -1,9 +1,6 @@
-//
-//  Utilities.hpp
-//  Bela Mirror
-//
-//  Created by Adam Pultz Melbye on 09.03.21.
-//
+/*
+ Utilities for running pultzLib
+ */
 
 #ifndef Utilities_hpp
 #define Utilities_hpp
@@ -13,6 +10,10 @@
 
 using namespace pultzLib;
 
+/*
+ Adopted from Joel de Guzman's Q library
+ Crossfade between two inputs according to a Decibel threshold. If ctrl input falls below the threshold, the crossfade takes effect according to ctrl's distance to the threshold
+ */
 class level_crossfade
 {
 public:
@@ -35,6 +36,10 @@ public:
 private:
     float thresh_;
 };
+
+/*
+ A signal comparator with hysterises
+ */
 
 class Schmitt_Trigger
 {
@@ -78,7 +83,8 @@ public:
         sum_ += val;
     }
     
-    float process(){ // Calculate mean and variance
+    /* Calculate mean and variance */
+    float process(){
         
         float mean = sum_ * size_reciproc_;
         float runningSum = 0;
@@ -94,7 +100,9 @@ public:
         return variance_;
     }
     
-    float process(float meanVal){ //If mean is already available, calculate only variance
+    /* If mean is already available, calculate only variance */
+    
+    float process(float meanVal){
         float mean = meanVal;
         float runningSum = 0;
         
@@ -140,6 +148,7 @@ private:
     T x_m1;
 };
 
+/* For crossfading between two values. Using a square root function to preserve amplitude*/
 static inline float Balance2(float val_a, float val_b, float balance) {
 	return (val_a * sqrtf(1.0f - balance)) + (val_b * sqrtf(balance));
 }

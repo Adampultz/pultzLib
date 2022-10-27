@@ -1,9 +1,6 @@
-//
-//  ZC_Detect.hpp
-//  Bela Mirror
-//
-//  Created by Adam Pultz Melbye on 23.03.21.
-//
+/*
+ Class for calculating number of zero-crossings for use as a crude frequency detector.
+ */
 
 #ifndef ZC_Detect_h
 #define ZC_Detect_h
@@ -18,7 +15,7 @@ namespace pultzLib {
 template<class T>
 class ZC_Detect {
 public:
-    ZC_Detect() {}                                                    // Default constructor
+    ZC_Detect() {}
     ZC_Detect(int size);
               
     void initialise(float minFreq, float samplerate){
@@ -40,7 +37,7 @@ public:
         return numCrossings_ * numSec_;
     }
     
-    ~ZC_Detect() {}                // Destructor
+    ~ZC_Detect() {}              
 
 private:
     

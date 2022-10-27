@@ -1,9 +1,6 @@
-//
-//  WaveTable.h
-//  Bela Mirror
-//
-//  Created by Adam Pultz Melbye on 10.05.21.
-//
+/*
+ A selection of wavetables with linear interpolation
+ */
 
 #ifndef WaveTables_h
 #define WaveTables_h
@@ -13,6 +10,10 @@
 #include "fundamentals.hpp"
 
 namespace pultzLib {
+
+/*
+ Wavetable for use with the Amplitude Sync algorithm
+ */
 
 template<class T>
 class WaveTable_Sync {
@@ -34,7 +35,7 @@ public:
         writePointer_ = 0;
         increment_ = frequency_ * size_ / sampleRate_;
         phase_ = 0;
-        buffer_.resize(size_);
+        buffer_.resize(size_ + 1);
         
         for(unsigned int n = 0; n < size_; n++ ){
         buffer_[n] = sin(2 * M_PI * (float)n / (float)size_);
@@ -126,7 +127,7 @@ public:
         writePointer_ = 0;
         increment_ = frequency_ * size_ / sampleRate_;
         phase_ = 0;
-        buffer_.resize(size_);
+        buffer_.resize(size_ + 1);
         
         for(unsigned int n = 0; n < size_; n++ ){
         buffer_[n] = sin(2 * M_PI * (float)n / (float)size_);
@@ -174,8 +175,6 @@ private:
     std::vector<T> buffer_;
     
     int size_;
-    int quadrant_;
-    int thirdQuadrant_;
     float frequency_;
     int sampleRate_;
     float increment_;
@@ -186,7 +185,6 @@ private:
     int wrapMask_;
     float phase_;
     int oscDirection;
-    bool halfSize_;
     
 };
 }

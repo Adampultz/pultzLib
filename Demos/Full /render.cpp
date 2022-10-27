@@ -53,7 +53,7 @@ unsigned int gAudioChannelNum; // number of audio channels to iterate over
 unsigned int gAnalogChannelNum; // number of analog channels to iterate over
 unsigned int gVarUpdateSens = 64; // Control rate frequency
 unsigned int gVarUpdateCount;
-float lifeSpanSec = 30; // Lifespan of Evoluionary Algorithm in seconds
+float lifeSpanSec = 30; // Lifespan of Evolutionary Algorithm in seconds
 float lifeSpan = 48000 * lifeSpanSec; // Lifespan of Evoluionary Algorithm in samples
 std::vector<float> weights_; // Create vector of weights for Evolutionary Algorithm
 std::vector<float> ampDiffMeans; // Create vector of mean amplitude differences for Evolutionary Algorithm
@@ -109,9 +109,7 @@ Moving_Average* movAvg;
 level_crossfade* xFade;
 OnePole_LP* zcFilt;
 OnePole_LP* rmsDiffSmooth;
-OnePole_LP* triggerFilt;
 Leaky_Integrator* ampDiffInt;
-Schmitt_Trigger* schmitt_trigger;
 Adaptive_Comb* adaptive_Comb;
 Variance<float> AmpVariance(numInputs);
 Amplitude_Sync ampSync;
@@ -135,8 +133,6 @@ rmsDiffSmooth = new OnePole_LP[numInputs];
 specBal = new Spectral_Balance_Cheap[numInputs];
 ampDiffInt = new Leaky_Integrator[numInputs];
 adaptive_Comb = new Adaptive_Comb[numInputs];
-triggerFilt = new OnePole_LP[numInputs];
-schmitt_trigger = new Schmitt_Trigger[numInputs];
 weights_.resize(numInputs * 2);
 ampDiffMeans.resize(numInputs * 2);
 
@@ -167,13 +163,10 @@ Biquad::Settings settings{
 	specBal[n].initialise(0.01, 15.0, context->audioSampleRate);
 	ampDiffInt[n].init(0.8);
 
-	
 	float schmittLow = schmittLowThres[n];
 	float schmittHigh = schmittHighThres[n];
 	
 	adaptive_Comb[n].init(100, 0.2, schmittLow, schmittHigh, 1, context->audioSampleRate);
-	triggerFilt[n].setFc(schmittSmoothFreq[n], context->audioSampleRate);
-	schmitt_trigger[n].init(schmittLow, schmittHigh);
 	}
 	
 	ampSync.init(numInputs, wtSize_, context->audioSampleRate, 2.5);
@@ -268,11 +261,6 @@ void render(BelaContext *context, void *userData)
 			float rmsSlowFilt = rmsSlow[ch].process(delayBlend[ch]);
 			rmsValSlow[ch] = rmsDiffSmooth[ch].process(fabsf_neon(rmsSlowFilt - rmsVal[ch]));
 			rmsValSlow[ch] = clamp2((float)ampDiffInt[ch].process(rmsValSlow[ch]), 0.0f, 1.0f);
-			
-			float fbSign = schmitt_trigger[ch].process(rmsVal[ch]);
-			fbSgn[ch] = triggerFilt[ch].process(fbSign);
-			fbSgn[ch] = clamp2((float)fbSgn[ch], -1.0f, 1.0f);
-			adaptive_Comb[ch].setFbSgn(fbSgn[ch]);
 
 			AmpVariance.push(rmsVal[ch], ch);
 			adaptive_Comb[ch].setVariables(onePole[ch], rmsVal[ch], rmsValSlow[ch]);
