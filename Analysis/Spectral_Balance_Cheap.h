@@ -1,23 +1,19 @@
-//
-//  Spectral_Balance.hpp
-//  LoopingAudioSampleBufferAdvancedTutorial - App
-//
-//  Created by Adam Pultz Melbye on 03.01.21.
-//  Copyright © 2021 JUCE. All rights reserved.
-//
+/*
+ A C++ implementation of Dario Sanfilippo's "Spectral Tendency" algorithm. See Sanfilippo's PhD thesis "Complex Musical Behaviours via Time-Variant Audio Feedback Networks and Distributed Adaptation: a Study of Autopoietic Infrastructures for Real-Time Performance Systems" (2019)
+ */
 #pragma once
 
 #ifndef Spectral_Balance_hpp
 #define Spectral_Balance_hpp
 
 #include <stdio.h>
-#include "RMS.h"
 #include <cstdint>
 #include <algorithm>
+#include "RMS.h"
 #include "CrossOver_Cheap.h"
 #include "Integrator.h"
 #include "fundamentals.hpp"
-#include <libraries/math_neon/math_neon.h>
+#include "Fast_Math.hpp"
 
 class Spectral_Balance_Cheap
 {
