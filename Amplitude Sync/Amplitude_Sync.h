@@ -1,8 +1,6 @@
 /*
  Amplitude Sync
- Designed for the FAAB. The algorithm attempts to synchronise its amplitude to the mean amplitude
- of its two neighbouring strings. See chapter 4 of my PhD thesis "A Continually Receding Horizon:
- Making, performing and improvising with semi-autonomous double bass feedback systems" (2023).
+ Designed for the FAAB. The algorithm attempts to synchronise its amplitude to the mean amplitude of its two neighbouring strings. See chapter 4 of my PhD thesis "A Continually Receding Horizon: Making, performing and improvising with semi-autonomous double bass feedback systems" (2023).
  */
 
 #pragma once

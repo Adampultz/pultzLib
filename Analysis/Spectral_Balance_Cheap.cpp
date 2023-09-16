@@ -1,8 +1,3 @@
-//  Spectral_Balance.cpp
-//  LoopingAudioSampleBufferAdvancedTutorial - App
-//  Created by Adam Pultz Melbye on 03.01.21.
-
-
 #include "Spectral_Balance_Cheap.h"
 
 Spectral_Balance_Cheap::Spectral_Balance_Cheap(float filterFrequency, float rmsFreq, float sampleRate){
@@ -38,9 +33,9 @@ void Spectral_Balance_Cheap::process(float value){
     
     crossOver.process(value, integrator_);
     
-    float rms = clamp2(rmsDiffDivide.process(value), 0.0001f, 1.0f);
+    float rms = clamp2(rmsDiffDivide.process(value), 0.0001f, 1.0f); // Constrain rms
     
-    xOverLow = crossOver.getLow();
+    xOverLow = crossOver.getLow(); // ToDo: make crossover spit out tuple of low and high
     xOverHigh = crossOver.getHigh();
     
     xOverLow = rmsLow.process(xOverLow);
@@ -54,7 +49,7 @@ void Spectral_Balance_Cheap::process(float value){
     
     integrator_ = integrator.process(difference);
     
-    integrator_ = clamp2(integrator_, 0.0f, 1.0f);
+    integrator_ = clamp2(integrator_, 0.0f, 1.0f); //Constrain integrator values
     
     integrator_ = powf(integrator_, 2.0f);
 }

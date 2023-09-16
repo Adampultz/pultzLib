@@ -19,6 +19,9 @@ http://www.eecs.qmul.ac.uk/~andrewm
 
 The Bela software is distributed under the GNU Lesser General Public License
 (LGPL 3.0), available here: https://www.gnu.org/licenses/lgpl-3.0.txt
+ 
+This is a demo for running the adaptive comb filter algorithm on the Bela platform
+ 
 */
 
 #define numInputs 4 
@@ -35,9 +38,6 @@ The Bela software is distributed under the GNU Lesser General Public License
 #include <libraries/GuiController/GuiController.h>
 #include <libraries/math_neon/math_neon.h>
 #include "EnvelopeFollower.h"
-#include "Chromosome.hpp"
-#include "Operators.hpp"
-#include "Moving_Average.hpp"
 #include "fundamentals.hpp"
 #include "Utilities.hpp"
 #include "OnePole_LP.h"
@@ -52,12 +52,6 @@ using namespace pultzLib;
 unsigned int gAudioChannelNum; // number of audio channels to iterate over
 unsigned int gAnalogChannelNum; // number of analog channels to iterate over
 unsigned int gNumIns = numInputs;
-unsigned int gVarUpdateSens = 64;
-unsigned int gVarUpdateCount;
-float lifeSpanSec = 30;
-float lifeSpan = 48000 * lifeSpanSec;
-std::vector<float> weights_;
-std::vector<float> ampDiffMeans;
 float gSpectralBalance[numInputs];
 float out[numInputs];
 float in[numInputs];
@@ -92,21 +86,16 @@ float maxLifeSpan_ = 30;
 int wtSize_ = 2048;
 float stretch_[numInputs] = {0};
 float fbSgn[numInputs] = {1};
-// float schmittLowThres[numInputs] = {0.015, 0.02, 0.04, 0.06};
-// float schmittHighThres[numInputs] = {0.06, 0.06, 0.08, 0.12};
 float schmittLowThres[numInputs] = {0.015, 0.02, 0.015, 0.015};
 float schmittHighThres[numInputs] = {0.08, 0.1, 0.1, 0.13};
 float schmittSmoothFreq[numInputs] = {10, 10, 10, 8};
 float delayBlend[numInputs] = {0};
 
 EnvelopeFollower* envelope;
-Wavelets_RT_Shell* wavelets;
 Spectral_Balance_Cheap* specBal;
 RMS* rms;
 RMS* rmsSlow;
 Biquad* highPass;
-Chromosome chromosome(8, 32, 0.2, 1.2);
-AmpDiff meanAmps(gNumIns);
 EnvelopeFollower* envIn;
 Moving_Average* movAvg;
 level_crossfade* xFade;
@@ -116,9 +105,7 @@ OnePole_LP* triggerFilt;
 Leaky_Integrator* ampDiffInt;
 Schmitt_Trigger* schmitt_trigger;
 Adaptive_Comb* adaptive_Comb;
-Variance<float> AmpVariance(gNumIns);
-Amplitude_Sync ampSync;
-Scope scope;
+//
 	
 bool setup(BelaContext *context, void *userData)
 {
@@ -137,11 +124,6 @@ ampDiffInt = new Leaky_Integrator[numInputs];
 adaptive_Comb = new Adaptive_Comb[numInputs];
 triggerFilt = new OnePole_LP[numInputs];
 schmitt_trigger = new Schmitt_Trigger[numInputs];
-weights_.resize(numInputs * 2);
-
-weights_ = chromosome.getInitPop();
-
-ampSync.setWeights(weights_);
 
 Biquad::Settings settings{
 			.fs = context->audioSampleRate,
@@ -154,7 +136,6 @@ Biquad::Settings settings{
 				
 	for (unsigned int n = 0; n < gNumIns; n++) {
 	
-	wavelets[n].setup(context->audioSampleRate, 0.7, 10, 0.01, 2, 1, 5);
 	rms[n].setup(50.0, context->audioSampleRate);
 	rmsSlow[n].setup(0.2, context->audioSampleRate);
 	highPass[n].setup(settings);
@@ -169,14 +150,11 @@ Biquad::Settings settings{
 	float schmittLow = schmittLowThres[n];
 	float schmittHigh = schmittHighThres[n];
 	
-	adaptive_Comb[n].init(100, 0.2, schmittLow, schmittHigh, 1, context->audioSampleRate);
+	adaptive_Comb[n].init(100, 0.2, schmittLow, schmittHigh, 1, context->audioSampleRate); // Initialise the comb filter
 	triggerFilt[n].setFc(schmittSmoothFreq[n], context->audioSampleRate);
 	schmitt_trigger[n].init(schmittLow, schmittHigh);
 	}
 	
-	ampSync.init(gNumIns, wtSize_, context->audioSampleRate, 2.5);
-	
-
 	scope.setup(4, context->audioSampleRate);
 	// Check that we have the same number of inputs and outputs.
 	if(context->audioInChannels != context->audioOutChannels ||
@@ -189,8 +167,6 @@ Biquad::Settings settings{
 
 	return true;
 }
-
-
 
 void render(BelaContext *context, void *userData)
 {
@@ -253,16 +229,7 @@ void render(BelaContext *context, void *userData)
 			
 		}
 		
-		// rt_printf("Val: %f \n", dB[3]);
-		
-
 		audioWrite(context, n, 1, mix);
-		
-
-		
-
-		
- //scope.log(fbSgn);
 
 	}
 }

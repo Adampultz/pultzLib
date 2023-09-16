@@ -21,6 +21,10 @@ The Bela software is distributed under the GNU Lesser General Public License
 (LGPL 3.0), available here: https://www.gnu.org/licenses/lgpl-3.0.txt
 */
 
+/*
+ File for running a demo of the amplitude sync algorithm
+ */
+
 #define numInputs 4 
 
 #include <Bela.h>
@@ -52,28 +56,28 @@ using namespace pultzLib;
 unsigned int gAudioChannelNum; // number of audio channels to iterate over
 unsigned int gAnalogChannelNum; // number of analog channels to iterate over
 unsigned int gNumIns = numInputs;
-unsigned int gVarUpdateSens = 64;
+unsigned int gVarUpdateSens = 64; // When to update
 unsigned int gVarUpdateCount;
 float lifeSpanSec = 30;
-float lifeSpan = 48000 * lifeSpanSec;
-std::vector<float> weights_;
-std::vector<float> ampDiffMeans;
-float gSpectralBalance[numInputs];
+float lifeSpan = 48000 * lifeSpanSec; // Life span of GA in samples
+std::vector<float> weights_; // For storing weights for GA
+std::vector<float> ampDiffMeans; // Mean amplitude difference
+float gSpectralBalance[numInputs]; // Sepctral balance
 float out[numInputs];
 float in[numInputs];
 float gStretch[numInputs];
-float gStringBal[numInputs] = {1.5, 1.3, 1.0, 1.0};
+float gStringBal[numInputs] = {1.5, 1.3, 1.0, 1.0}; // String makeup gain
 float source[numInputs];
 float dc[numInputs];
-float gLpFreq = 40;
-float gFilterQ = 0.707;
+float gLpFreq = 40; // Biquad low pass filter
+float gFilterQ = 0.707; // Biquad q
 float rmsVal[numInputs];
 float rmsValSlow[numInputs];
 float slider[numInputs] = {0.0};
 float volume[numInputs] = {0.0};
 float gEnvelopeOutput[numInputs] = {0.0};
 float gAmpDiff[numInputs] = {0};
-float weightSum;
+float weightSum; // Sum of weights
 float ampBalance = 1.0;
 float ampBalanceTarget = 1.0;
 int gGenCounter = 0;
@@ -116,7 +120,7 @@ Schmitt_Trigger* schmitt_trigger;
 AdaptiveComb* adaptive_Comb;
 Variance<float> AmpVariance(gNumIns);
 Amplitude_Sync ampSync;
-Scope scope;
+//Scope scope;
 
 AuxiliaryTask gGA;
 void process_GA_background(void *);
@@ -152,11 +156,9 @@ Biquad::Settings settings{
 			.q = gFilterQ,
 			.peakGainDb = 0,
 			};
-		
-				
+						
 	for (unsigned int n = 0; n < gNumIns; n++) {
-	
-	wavelets[n].setup(context->audioSampleRate, 0.7, 10, 0.01, 2, 1, 5);
+
 	rms[n].setup(50.0, context->audioSampleRate);
 	rmsSlow[n].setup(0.2, context->audioSampleRate);
 	highPass[n].setup(settings);
@@ -193,20 +195,24 @@ Biquad::Settings settings{
 	return true;
 }
 
+/*
+ Thread for running GA without interrupting audio processing
+ */
 void process_GA_background(void *){
-	ampVarianceSum /= lifeSpan;
-	ampVarianceSum = clamp2(ampVarianceSum, 0.000001f, 0.3f);
-	ampDiffMeans = meanAmps.getDiffs();
-	rt_printf("Val: %f, %f, %f, %f, %f, %f, %f, %f \n", ampDiffMeans[0], ampDiffMeans[1], ampDiffMeans[2], ampDiffMeans[3],ampDiffMeans[4], ampDiffMeans[5], ampDiffMeans[6], ampDiffMeans[7] );
+	ampVarianceSum /= lifeSpan; // Mean of amplitude variance across all strings
+	ampVarianceSum = clamp2(ampVarianceSum, 0.000001f, 0.3f); // Constrain value
+	ampDiffMeans = meanAmps.getDiffs(); // Mean of amplitude differences
+//	rt_printf("Val: %f, %f, %f, %f, %f, %f, %f, %f \n", ampDiffMeans[0], ampDiffMeans[1], ampDiffMeans[2], ampDiffMeans[3],ampDiffMeans[4], ampDiffMeans[5], ampDiffMeans[6], ampDiffMeans[7] );
 	chromosome.select(ampDiffMeans);
     chromosome.xOver();
     chromosome.mutation();
     weights_ = chromosome.getNewFloatPop();
-    rt_printf("Val: %f, %f, %f, %f, %f, %f, %f, %f \n", weights_[0], weights_[1], weights_[2], weights_[3], weights_[4], weights_[5], weights_[6], weights_[7] );
+//    rt_printf("Val: %f, %f, %f, %f, %f, %f, %f, %f \n", weights_[0], weights_[1], weights_[2], weights_[3], weights_[4], weights_[5], weights_[6], weights_[7] );
 	ampSync.setWeights(weights_);
+    /* New life span equals the inverse of the mean of amplitude variance*/
 	float newLifeSpan = 40.0 - clamp2(mapLin(ampVarianceSum, 0, 0.3f, minLifeSpan_, maxLifeSpan_), minLifeSpan_, maxLifeSpan_);
-	lifeSpan = 48000 * newLifeSpan;
-	meanAmps.reset();
+	lifeSpan = 48000 * newLifeSpan; // Set new life span in samples
+	meanAmps.reset(); // Reset mean amplitudes
 	ampVarianceSum = 0;
 }
 
@@ -258,23 +264,7 @@ void render(BelaContext *context, void *userData)
 
 			out = Balance2(dc[ch], out, balSync);
 			
-			// stretch_[ch] = wavelets[ch].process(dc[ch]);
-
-			// float blend = Balance2(out, out, balStretch);
-			
-			// float delay_ = adaptive_Comb[ch].process(blend);
-			
-			// delayBlend[ch] = Balance2(blend, delay_, balSat);
-
 			rmsVal[ch] = rms[ch].process(delayBlend[ch]);
-			// float rmsSlowFilt = rmsSlow[ch].process(delayBlend[ch]);
-			// rmsValSlow[ch] = rmsDiffSmooth[ch].process(fabsf_neon(rmsSlowFilt - rmsVal[ch]));
-			// rmsValSlow[ch] = clamp2((float)ampDiffInt[ch].process(rmsValSlow[ch]), 0.0f, 1.0f);
-			
-			// float fbSign = schmitt_trigger[ch].process(rmsVal[ch]);
-			// fbSgn[ch] = triggerFilt[ch].process(fbSign);
-			// fbSgn[ch] = clamp2((float)fbSgn[ch], -1.0f, 1.0f);
-			// adaptive_Comb[ch].setFbSgn(fbSgn[ch]);
 
 			AmpVariance.push(rmsVal[ch], ch);
 			adaptive_Comb[ch].setVariables(onePole[ch], rmsVal[ch], rmsValSlow[ch]);
@@ -287,26 +277,11 @@ void render(BelaContext *context, void *userData)
 			
 		}
 		
-		// rt_printf("Val: %f \n", dB[3]);
-		
 
 		audioWrite(context, n, 1, mix);
 		
 		ampSync.compute();
-		
-		// gVarUpdateCount++;
-		
-		// if(gVarUpdateCount > gVarUpdateSens){
-		// 	  gVarUpdateCount = 0;
-		// 	  for(unsigned int i = 0; i < gNumIns; i++){
-		// 	int	balance_ = (int) mapLin(clamp2(gSpectralBalance[i], 30.0f, 1500.0f) , 40.0f, 1000.0f, 8, 1);
-		// 	  int rmsLin = mapLin(rmsVal[i], 0.0f,  0.3f, 1, 10);
-		// 	  rmsLin = clamp2((int) rmsLin, 1, 10);
-		// 	  wavelets[i].setVariables(rmsLin, 1, balance_);
-		// 	  wavelets[i].setAnalysisWindow(clamp2(rmsValSlow[i], 0.1f, 0.9f ));
-		// 	  }
-		// }
-		
+        
 		meanAmps.process();
 		ampVarianceSum += AmpVariance.process(meanAmps.getMeanAmp());
 		
@@ -319,7 +294,7 @@ void render(BelaContext *context, void *userData)
 			
 		}
 		
- scope.log(gAmpDiff);
+// scope.log(gAmpDiff);
 
 	}
 }
