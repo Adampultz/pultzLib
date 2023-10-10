@@ -4,28 +4,31 @@
 
 using namespace pultzLib;
 
-Saturator::Saturator(float coeff, float bal){
-    init(coeff, bal);
+Saturator::Saturator(float coeff, float bal, float sensitivity){
+    init(coeff, bal, sensitivity);
 }
 
-void Saturator::init(float coeff, float bal){
+void Saturator::init(float coeff, float bal, float sensitivity){
     coeff_ = coeff;
     bal_ = bal;
+    sensitivity_ = sensitivity;
     leakyInt.init(coeff_);
-    balance.init(bal_);
 }
 
 void Saturator::setCoeff(float coeff){
     leakyInt.setCoeff(coeff);
 }
 
+void Saturator::setSens(float sensitivity){
+    sensitivity_ = sensitivity;
+}
+
 float Saturator::process(float val, float coeff, float amp){
     leakyInt.setCoeff(coeff);
-    balance.setBalance(amp);
-    float x_ = fabs(val) * 8.0f;
+    float x_ = fabs(val) * sensitivity_;
     float filter = leakyInt.process(x_);
     filter = val * (1.0f / filter);
-    float output = balance.process(filter, val);
+    float output = Balance2(filter, val, amp);
     
     return output;
 }
