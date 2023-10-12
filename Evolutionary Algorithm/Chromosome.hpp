@@ -1,10 +1,3 @@
-//
-//  Chromosome.hpp
-//  Genetic Algorithm
-//
-//  Created by Adam Pultz Melbye on 07.02.21.
-//
-
 #ifndef Chromosome_hpp
 #define Chromosome_hpp
 
@@ -16,13 +9,13 @@
 #include <random>
 #include <string.h>
 #include "fundamentals.hpp"
-
+#include <iostream>
 using namespace std;
 
 class Chromosome{
 
 public:
-    Chromosome(int popSize, int chrSize, float minVal, float maxVal);
+    Chromosome();
     
     void init(int popSize, int chrSize, float minVal, float maxVal);
     
@@ -35,6 +28,8 @@ public:
     void mutation();
     
     vector<float>& getNewFloatPop();
+    
+    vector<float>& process(vector<float> &fitness);
     
     ~Chromosome() {}
   

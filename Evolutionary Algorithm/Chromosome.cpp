@@ -1,15 +1,6 @@
-//
-//  Chromosome.cpp
-//  Genetic Algorithm
-//
-//  Created by Adam Pultz Melbye on 07.02.21.
-//
-
 #include "Chromosome.hpp"
 
-Chromosome::Chromosome(int popSize, int chrSize, float minVal, float maxVal){
-    Chromosome::init(popSize, chrSize, minVal, maxVal);
-}
+Chromosome::Chromosome(){}
 
 void Chromosome::init(int popSize, int chrSize, float minVal, float maxVal){
     popSize_ = popSize;
@@ -36,16 +27,11 @@ void Chromosome::init(int popSize, int chrSize, float minVal, float maxVal){
         dec_Vals[n] = r;
         pop_[n] = convert.GetBinary32(r);
     }
-
 }
 
 vector<float>& Chromosome::getInitPop(){
     return dec_Vals;
 }
-
-// void Chromosome::calcWeigtVar(vector<float> &fitness){
-    
-// }
 
 void Chromosome::select(vector<float> &fitness){
     float fitnessSum_ = 0.0f;
@@ -75,7 +61,7 @@ void Chromosome::xOver(){
         int selInd = wrapMax((n + 1), wrapMaxMax_);
         int tempInd = (n * 2) ;
         int tempInd_2 = tempInd + 1;
-        int xOverPoint = uniform_Rand_int(0, chrSize_ - 6);
+        int xOverPoint = uniform_Rand_int(4, chrSize_ - 6);
         int r_Size = chrSize_ - xOverPoint;
         int r_Pos = xOverPoint + 6;
         char chr_1_L[26] = "";
@@ -101,22 +87,27 @@ void Chromosome::mutation(){
             int random = uniform_Rand_int(0, mutationProb_);
             if(random < 1){
                 if(tempPop_[n][i] == 1){
-                    tempPop_[n].replace(i, 1, "0");
+                    tempPop_[n][i] = (char) '0';
                 } else {
-                    tempPop_[n].replace(i, 1, "1");
+                    tempPop_[n][i] = (char) '1';
                 }
             }
         }
-    }
-    
+    }    
 }
 
 vector<float>& Chromosome::getNewFloatPop(){
-    
     for(unsigned int n = 0; n < popSize_; n++){
         choices[n] = false; // Reset choices array
         newPop_[n] = "001111" + tempPop_[n];
         dec_Vals[n] = convert.GetFloat32(newPop_[n]) * range_ + minVal_;
     }
     return dec_Vals;
+}
+
+vector<float>& Chromosome::process(vector<float> &fitness){
+    this->select(fitness);
+    this->xOver();
+    this->mutation();
+    return this->getNewFloatPop();
 }
