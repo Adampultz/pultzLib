@@ -17,6 +17,7 @@
            wtSize_ = wtSize;
            makeUpGain_ = makeupGain;
            doubleSize_ = size_ * 2;
+           weightSumNormalizeCoeff_ = 1.0 / doubleSize_;
            
            oscillator = new WaveTable_Sync<float>[size];
            
@@ -27,15 +28,19 @@
            weightsLeftIndex_.resize(size);
            weightsRightIndex_.resize(size);
            ampDifferences_.resize(size);
-           
            weights_.resize(doubleSize_);
            
+           chromosome.init(doubleSize_, 32, 0.2, 1.2);
+           AmpVariance.init(size_);
+           ampDiff.init(size_);
+           
+           weights_ = chromosome.getInitPop();
+           
            for (unsigned int n = 0; n < doubleSize_; n++){
-               weights_[n] = 1.0;
                weightSum_ += weights_[n];
            }
            
-            weightSum_ = weightSum_ * 0.125f; // Make coefficient a function of doubleSize
+            weightSum_ = weightSum_ * weightSumNormalizeCoeff_; // Make coefficient a function of doubleSize
             ampBalanceTarget_ = makeUpGain_  - weightSum_;
             weightSum_ = 0;
            
@@ -61,18 +66,31 @@
         float Amplitude_Sync::getAmpDiffInd(int index){
             return ampDifferences_[index];
         }
+
+        float Amplitude_Sync::getMeanAmp(){
+            return ampDiff.getMeanAmp();
+        }
         
-       void Amplitude_Sync::setWeights(vector<float>& weights){
-            weights_ = weights;
-            for (unsigned int k = 0; k < doubleSize_; k++){
+       void Amplitude_Sync::setWeights(){
+           // Calculate amplitude differences and input to chromosome for calculating weights
+           weights_ = chromosome.process(ampDiff.getDiffs());
+           // Sum all weights
+           for (unsigned int k = 0; k < doubleSize_; k++){
                 weightSum_ += weights_[k];
                 };
-            weightSum_ = weightSum_ * 0.125f;
-            ampBalanceTarget_ = makeUpGain_  - weightSum_;
-            weightSum_ = 0;
+           
+           weightSum_ = weightSum_ * weightSumNormalizeCoeff_;
+           ampBalanceTarget_ = makeUpGain_  - weightSum_;
+           weightSum_ = 0;
+           ampDiff.reset(); // Reset amplitude differences for new calculation
+           
+           for(int i = 0; i < 8; ++i)
+               printf( "%f\n", weights_[i]);
         }
         
             void Amplitude_Sync::compute(){
+                
+                ampDiff.process();
           
                 for (unsigned int n = 0; n < size_; n++){
                     float ampDiff = (0.5f * ((amplitudes_[leftIndex_[n]] * weights_[weightsLeftIndex_[n]]) + (amplitudes_[rightIndex_[n]] * weights_[weightsRightIndex_[n]]))) - amplitudes_[n];
@@ -89,7 +107,10 @@
             
             }
         
-        float Amplitude_Sync::process(float sig, int index){
+        float Amplitude_Sync::process(float sig, float amp, int index){
+            ampDiff.push(amp, index);
+            this->push(amp, index);
+            
             float biOsc = oscillator[index].read(); // Bidirectional oscillator
             biOsc = (biOsc * 0.5f + 0.5f); // Unidirectional Oscillator
             oscValues_[index] = biOsc;

@@ -10,6 +10,10 @@
 
 #include "fundamentals.hpp"
 #include "WaveTables.h"
+#include "Chromosome.hpp"
+#include "Operators.h"
+#include "Utilities.hpp"
+
 
 namespace pultzLib {
 
@@ -28,17 +32,22 @@ public:
     
     float getAmpDiffInd(int index);
     
-    void setWeights(vector<float>& weights);
+    void setWeights();
     
     void compute();
     
-    float process(float sig, int index);
+    float getMeanAmp();
+    
+    float process(float sig, float amp, int index);
     
     ~Amplitude_Sync() {}
     
 private:
     
     WaveTable_Sync<float>* oscillator;
+    Variance<float> AmpVariance;
+    AmpDiff ampDiff;
+    Chromosome chromosome;
 
     int size_;
     int doubleSize_;
@@ -47,6 +56,7 @@ private:
     float ampBalanceTarget_;
     float weightSum_;
     float ampBalance_;
+    float weightSumNormalizeCoeff_;
    
     std::vector<int> leftIndex_;
     std::vector<int> rightIndex_;
