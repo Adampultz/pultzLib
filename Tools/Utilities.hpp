@@ -7,6 +7,7 @@
 
 #include "db_lookup_table.hpp"
 #include "fundamentals.hpp"
+#include "Fast_Math.hpp"
 
 using namespace pultzLib;
 
@@ -14,12 +15,13 @@ using namespace pultzLib;
  Adopted from Joel de Guzman's Q library
  Crossfade between two inputs according to a Decibel threshold. If ctrl input falls below the threshold, the crossfade takes effect according to ctrl's distance to the threshold
  */
+
 class level_crossfade
 {
 public:
     level_crossfade(){};
     
-    void initialise(float thresh){
+    void init(float thresh){
         thresh_ = thresh;
     };
     
@@ -71,26 +73,27 @@ class Variance
 {
 public:
     
-    Variance(int size){
+    Variance(){}
+    
+    void init(int size){
     	size_ = size;
         sizeMinOne_ = size_ - 1;
-        size_reciproc_ = (float) 1 / size_;
+        size_reciproc_ = (float) 1.0 / size_;
         values_.resize(size_);
     };
     
     void push(T val, int index){
-        values_[index] = val;
+        values_[index] += val;
         sum_ += val;
     }
     
     /* Calculate mean and variance */
-    float process(){
-        
+    float process(){        
         float mean = sum_ * size_reciproc_;
         float runningSum = 0;
         
         for (int n = 0; n < size_; n++){
-            runningSum += powf(values_[n] - mean, 2);
+            runningSum += powf_fast(values_[n] - mean, 2);
         }
         
         variance_ = runningSum * size_reciproc_;
@@ -107,11 +110,11 @@ public:
         float runningSum = 0;
         
         for (int n = 0; n < size_; n++){
-            runningSum += powf(values_[n] - mean, 2);
+            runningSum += powf_fast(values_[n] - mean, 2); // Calculate the square of the difference between each amplitude and the mean amplitude
+            values_[n] = 0;
         }
         
-        variance_ = runningSum * size_reciproc_;
-        
+        variance_ = runningSum * size_reciproc_;        
         sum_ = 0;
         
         return variance_;
