@@ -16,7 +16,7 @@ void AmpDiff::init(int size){
      tempMeanAmpDiff_.resize(size_);
      tempMeanAmpDiffInd_.resize(doubleSize_);
      tempAmpDiffInd_.resize(doubleSize_);
-    tempAmpDiff_.resize(size_);
+     tempAmpDiff_.resize(size_);
      ampDiffInd_.resize(doubleSize_);
      // Create array of n - 1 using wrapmax (0 - 1 = size - 1)
      for (unsigned int n = 0; n < size_; n++){
@@ -32,7 +32,7 @@ void AmpDiff::init(int size){
      }
 }
 
-// Push Amplitude difference
+// Push Amplitudes and calculate sum
 void AmpDiff::push(float val, int index){
     amps_[index] = val;
     ampSum_ += val;
@@ -46,13 +46,15 @@ void AmpDiff::process(){
         // Difference between individual string and mean of all strings
         tempMeanAmpDiff_[n] = fabsf_fast(amps_[n] - meanAmp_);
         // Difference between individual strings
-        tempAmpDiff_[n] = fabsf_fast(amps_[n] - amps_m_[n]);
+        tempAmpDiff_[n] = fabsf_fast(amps_[n] - amps_[amps_m_[n]]);
     };
     
 //     Sum differences and add to array (no normalisation happens here, as that will be taken care of in AmpDiff::mean() while calculating the entire generation
   for (unsigned int n = 0; n < doubleSize_; n++){
       diffs_[n] += tempAmpDiff_[ampDiffInd_[n]] + tempMeanAmpDiff_[tempAmpDiffInd_[n]]; // 3
     };
+    
+    ampSum_ = 0.0f;
 }
 
 vector<float>& AmpDiff::getDiffs(){
