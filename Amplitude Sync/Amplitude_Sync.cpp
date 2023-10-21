@@ -1,6 +1,6 @@
-    #include "Amplitude_Sync.h"
+#include "Amplitude_Sync.h"
 
-    using namespace pultzLib;
+using namespace pultzLib;
 
     /*
     size = how many individuals are syncing.
@@ -68,25 +68,22 @@
         }
 
         float Amplitude_Sync::getMeanAmp(){
-            return ampDiff.getMeanAmp();
+            return ampDiff.getMeanAmp();            
         }
         
-       void Amplitude_Sync::setWeights(){
-           // Calculate amplitude differences and input to chromosome for calculating weights
-           weights_ = chromosome.process(ampDiff.getDiffs());
-           // Sum all weights
-           for (unsigned int k = 0; k < doubleSize_; k++){
-                weightSum_ += weights_[k];
-                };
-           
-           weightSum_ = weightSum_ * weightSumNormalizeCoeff_;
-           ampBalanceTarget_ = makeUpGain_  - weightSum_;
-           weightSum_ = 0;
-           ampDiff.reset(); // Reset amplitude differences for new calculation
-           
-           for(int i = 0; i < 8; ++i)
-               printf( "%f\n", weights_[i]);
-        }
+    void Amplitude_Sync::setWeights(){
+        // Calculate amplitude differences and input to chromosome for calculating weights
+        weights_ = chromosome.process(ampDiff.getDiffs());
+        // Sum all weights
+        for (unsigned int k = 0; k < doubleSize_; k++){
+            weightSum_ += weights_[k];
+        };
+        
+        weightSum_ = weightSum_ * weightSumNormalizeCoeff_;
+        ampBalanceTarget_ = makeUpGain_  - weightSum_;
+        weightSum_ = 0;
+        ampDiff.reset(); // Reset amplitude differences for new calculation
+    }
         
             void Amplitude_Sync::compute(){
                 
@@ -95,7 +92,7 @@
                 for (unsigned int n = 0; n < size_; n++){
                     float ampDiff = (0.5f * ((amplitudes_[leftIndex_[n]] * weights_[weightsLeftIndex_[n]]) + (amplitudes_[rightIndex_[n]] * weights_[weightsRightIndex_[n]]))) - amplitudes_[n];
                     
-                        ampDifferences_[n] = ampDiff;
+//                        ampDifferences_[n] = ampDiff; Only for debugging
                         oscillator[n].setFrequency(ampDiff);
                 }
                 
