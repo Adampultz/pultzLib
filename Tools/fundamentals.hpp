@@ -78,5 +78,4 @@ static inline float log_scale(float y1, float shape)
 }
 
 
-
 #endif /* fundamentals_h */
