@@ -8,6 +8,7 @@
 #include "db_lookup_table.hpp"
 #include "fundamentals.hpp"
 #include "Fast_Math.hpp"
+#include "Leaky_Integrator.h"
 
 using namespace pultzLib;
 
@@ -149,6 +150,100 @@ public:
     
 private:
     T x_m1;
+};
+
+template <class T>
+class RunningMax
+{
+public:
+    RunningMax(){}
+    
+    T process(T x){
+        if (x > maxVal_)
+            maxVal_ = x;
+        
+        return maxVal_;
+    };
+    
+    void reset(){
+        maxVal_ = 0;
+    };
+    
+    void setMaxVal(T newMaxVal){
+        maxVal_ = newMaxVal;
+    };
+    
+private:
+    T maxVal_;
+};
+
+template <class T>
+class RunningMaxDyn
+{
+public:
+    RunningMaxDyn(){}
+    RunningMaxDyn(float filterCoeff){
+        init(filterCoeff);
+    };
+    
+    void init(float filterCoeff){
+        leaky_Integrator.init(filterCoeff);
+    };
+    
+    T process(T x){
+        float oneShot = 0;
+        
+        if (x > maxVal_){
+            leaky_Integrator.reset();
+            oneShot = x;
+        };
+        
+        maxVal_ = leaky_Integrator.process(oneShot);
+        
+        return maxVal_;
+    };
+    
+    void reset(){
+        maxVal_ = 0;
+    };
+    
+    void setMaxVal(T newMaxVal){
+        maxVal_ = newMaxVal;
+    };
+    
+private:
+    T maxVal_;
+    Leaky_Integrator leaky_Integrator;
+};
+
+
+template <class T>
+class RunningMin
+{
+public:
+    RunningMin(){};
+    
+    void init(T min){
+        minVal_ = min;
+    };
+    
+    T process(T x){
+        if (x < minVal_)
+            minVal_ = x;
+        
+        return minVal_;
+    };
+    
+    void reset(){
+        minVal_ = 0;
+    };
+    
+    void setMinVal(T newMinVal){
+        minVal_ = newMinVal;
+    };
+    
+private:
+    T minVal_;
 };
 
 /* For crossfading between two values. Using a square root function to preserve amplitude*/
