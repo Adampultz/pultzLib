@@ -49,7 +49,7 @@ void Wavesets_RT::detect(float sample, int index){
     index_ = index;
     float x = sample;
 
-    float absAmp = fabsf_neon(x);
+    float absAmp = fabsf_fast(x);
     
     if(absAmp > localPeakAmp_)
         localPeakAmp_ = absAmp;

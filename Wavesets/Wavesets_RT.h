@@ -6,8 +6,7 @@
 
 #include <stdio.h>
 #include <vector>
-#include "frac_ZC.h"
-#include <libraries/math_neon/math_neon.h>
+#include "Fast_Math.hpp"
 
 namespace pultzLib {
 
@@ -42,7 +41,6 @@ public:
 private:
     std::vector<std::vector<float>> tempWavesetInfo_;
     std::vector<std::vector<float>> wavesetInfo_;
-    frac_ZC fractionalZC;
     unsigned int analysisWindow_;
     unsigned int index_ = 0;
     unsigned int minWindowSize_ = 10;
