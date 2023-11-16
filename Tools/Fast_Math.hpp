@@ -6,7 +6,7 @@ Useful for running Bela
 #ifndef Fast_Math_hpp
 #define Fast_Math_hpp
 
-#define Bela // Change this if you want to use the regular C++ functions
+//#define Bela // Change this if you want to use the regular C++ functions
 
 #ifdef Bela
 #include <libraries/math_neon/math_neon.h>
