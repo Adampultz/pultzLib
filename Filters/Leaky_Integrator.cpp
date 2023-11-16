@@ -18,6 +18,10 @@ void Leaky_Integrator::setCoeff(float coeff){
     coeff_ = coeff;
 }
 
+void Leaky_Integrator::reset(){
+    y_m1 = 0.0;
+}
+
 float Leaky_Integrator::process(float val){
     float y = val + coeff_ * y_m1;
     y_m1 = y;

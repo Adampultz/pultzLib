@@ -1,9 +1,4 @@
-//
-//  Leaky_Integrator.hpp
-//  Genetic Algorithm
-//
-//  Created by Adam Pultz Melbye on 15.02.21.
-//
+
 
 #ifndef Leaky_Integrator_h
 #define Leaky_Integrator_h
@@ -22,11 +17,13 @@ public:
     
     float process(float val);
     
+    void reset();
+    
     ~Leaky_Integrator() {}
   
 private:
     float coeff_ = 0.99;
-    float y_m1 = 0.0;
+    float y_m1;
 };
 
 #endif /* Leaky_Integrator_h */
