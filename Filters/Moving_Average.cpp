@@ -10,13 +10,13 @@
 using namespace pultzLib;
 
 Moving_Average::Moving_Average(int size){
-    initialise(size);
+    init(size);
 }
 
-void Moving_Average::initialise(int size){
+void Moving_Average::init(int size){
     size_ = size;
     sizeReciprocal_ = 1.0 / size_;
-    buffer.setup(size);
+    buffer.init(size);
 }
 
 float Moving_Average::process(float s){

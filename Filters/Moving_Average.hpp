@@ -19,7 +19,7 @@ public:
     
     Moving_Average(int size);
     
-    void initialise(int size);
+    void init(int size);
     
     float process(float s);
     
