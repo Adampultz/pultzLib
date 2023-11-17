@@ -119,9 +119,6 @@ public:
         sampleRate_ = samplerate;
         inverseSampleRate_ = 1.0 / sampleRate_;
         size_ = size;
-        halfSize_ = size / 2;
-        quadrant_ = size / 4;
-        thirdQuadrant_ = size - quadrant_;
         bufferLength_ = (unsigned int) (pow(2, ceil(log(size_) / log(2)))); // Round buffer length to nearest power of 2
         wrapMask_ = bufferLength_ - 1;
         writePointer_ = 0;
