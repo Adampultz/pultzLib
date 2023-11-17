@@ -20,7 +20,7 @@ Adaptive_Comb::Adaptive_Comb(float initFreq, float ampDiffThresh, float schmittL
         ratioSmooth.setFc(valSmoothing, sampleRate_);
         fbSignSmooth.setFc(10, sampleRate_);
         schmitt_trigger.init(schmittLow, schmittHigh);
-        delayLin.setup(0.8, delTime_, 0.8, sampleRate_);
+        delayLin.init(0.8, delTime_, 0.8, sampleRate_);
         freq_ = 440;
     }
     
