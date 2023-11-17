@@ -7,14 +7,14 @@
 using namespace pultzLib;
 
 DelayLin::DelayLin(float maxDelayTime, float delayTime, float feedBack, float sampleRate) {
-	setup(maxDelayTime = 1.0, delayTime = 0.2, feedBack = 0.0, sampleRate = 48000);
+	init(maxDelayTime = 1.0, delayTime = 0.2, feedBack = 0.0, sampleRate = 48000);
 }
 
 void DelayLin::init(float maxDelayTime, float delayTime, float feedBack, float sampleRate)
 {
     delayTime_ = delayTime * sampleRate;
 	maxDelayTime_ = maxDelayTime * sampleRate;
-    buffer_.setup(maxDelayTime_, delayTime_);
+    buffer_.init(maxDelayTime_, delayTime_);
 	feedBack_ = feedBack;
 	sampleRate_ = sampleRate;
 }
