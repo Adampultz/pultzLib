@@ -6,10 +6,10 @@
 using namespace pultzLib;
 
 Wavesets_RT::Wavesets_RT(int analysisWindow, int minWindowSize, float ampThreshold){
-    setup(analysisWindow = 48000, minWindowSize = 10, ampThreshold = 0.2);
+    init(analysisWindow = 48000, minWindowSize = 10, ampThreshold = 0.2);
 }
 
-void Wavesets_RT::setup(int analysisWindow, int minWindowSize, float ampThreshold){
+void Wavesets_RT::init(int analysisWindow, int minWindowSize, float ampThreshold){
     analysisWindow_ = analysisWindow;
     minWindowSize_ = minWindowSize;
     maxVectorSize_ = analysisWindow_;

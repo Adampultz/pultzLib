@@ -5,32 +5,31 @@
 #ifndef ZC_Detect_h
 #define ZC_Detect_h
 
+#include "Definitions.hpp"
 #include <vector>
 #include <cmath>
 #include "CircularBuffers.h"
 #include "Utilities.hpp"
 
-namespace pultzLib {
+//namespace pultzLib {
 
 template<class T>
-class ZC_Detect {
+class ZC_Detect : public Definitions {
 public:
     ZC_Detect() {}
     ZC_Detect(int size);
               
-    void initialise(float minFreq, float samplerate){
-        minFreq_ = minFreq;
+    void init(float minFreq){
         size_ = 2048;
-        numSec_ = 0.5f / (size_ / samplerate);
+        numSec_ = 0.5f / (size_ / g_sampleRate);
         buffer_.setup((int) size_);
     };
     
     void process(T value){ // Write value to buffer at writepointer index.
-        bool oldVal = buffer_.getOldest();
         bool biVal = zc.process(value);
         buffer_.write(biVal);
         numCrossings_ += biVal;
-        numCrossings_ -= oldVal;
+        numCrossings_ -= buffer_.getOldest();;
     }
     
     float getZC(){
@@ -45,16 +44,14 @@ private:
     CircularBuffer<bool> buffer_;
 
     int counter;
-    int sampleRate_;
     float size_;
     int numCrossings_;
     int zcCounter_;
     float numSec_;
-    float minFreq_;
     
 };
 
-}
+//}
 
 
 #endif /* ZC_Detect_h */

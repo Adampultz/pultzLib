@@ -9,20 +9,22 @@ class Leaky_Integrator{
 
 public:
     Leaky_Integrator() {}
-    Leaky_Integrator(float coeff);
+    Leaky_Integrator(double coeff);
     
-    void init(float coeff);
+    void init(double coeff);
     
-    void setCoeff(float coeff);
+    void setCoeff(double coeff);
     
     float process(float val);
+    
+    void reset(float val);
     
     void reset();
     
     ~Leaky_Integrator() {}
   
 private:
-    float coeff_ = 0.99;
+    double coeff_;
     float y_m1;
 };
 

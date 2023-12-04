@@ -16,7 +16,7 @@ public:
     Wavesets_RT(){}
     Wavesets_RT(int analysisWindow, int minWindowSize, float ampThreshold);
     
-    void setup(int analysisWindow, int minWindowSize, float ampThreshold);
+    void init(int analysisWindow, int minWindowSize, float ampThreshold);
     
     void detect(float sample, int index);
     

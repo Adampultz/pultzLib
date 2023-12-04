@@ -7,16 +7,21 @@
 #ifndef OnePole_LP_h
 #define OnePole_LP_h
 
+#include "Definitions.hpp"
 #include <math.h>
 
-class OnePole_LP {
+using namespace pultzLib;
+
+class OnePole_LP : public Definitions {
 public:
     OnePole_LP() {
-        a0 = 1.0; b1 = 0.0; z1 = 0.0;};
-    OnePole_LP(double Fc, double sampleRate) {
-        z1 = 0.0; setFc(Fc, sampleRate);};
+        a0 = 1.0; b1 = 0.0; z1 = 0.0;
+    };
+    OnePole_LP(double Fc) {
+        z1 = 0.0; setFc(Fc);
+    };
     
-    void setFc(double Fc, double sampleRate);
+    void setFc(double Fc);
     float process(float s);
     
     ~OnePole_LP() {};
@@ -25,15 +30,13 @@ private:
     double a0, b1, z1;
 };
 
-inline void OnePole_LP::setFc(double Fc, double sampleRate) {
-    // double invSRate = 1.0 / sampleRate;
-    b1 = exp(-2.0 * M_PI * (Fc / sampleRate));
+inline void OnePole_LP::setFc(double Fc) {
+    b1 = exp(-2.0 * M_PI * (Fc / g_SampleRate));
     a0 = 1.0f - b1;
 }
 
 inline float OnePole_LP::process(float s) {
     return z1 += (s - z1) * a0;
-    // return z1 = s * a0 + z1 * b1;
 }
 
 

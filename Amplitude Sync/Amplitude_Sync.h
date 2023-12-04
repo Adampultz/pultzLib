@@ -8,6 +8,7 @@
 #ifndef Amplitude_Sync_h
 #define Amplitude_Sync_h
 
+#include "Definitions.hpp"
 #include "fundamentals.hpp"
 #include "WaveTables.h"
 #include "Chromosome.hpp"
@@ -17,14 +18,14 @@
 
 namespace pultzLib {
 
-class Amplitude_Sync{
+class Amplitude_Sync : public Definitions {
     
 public:
     
     Amplitude_Sync() {};
-    Amplitude_Sync(int size, int wtSize, float sampleRate, float makeupGain);
+    Amplitude_Sync(int size, int wtSize, float makeupGain);
     
-    void init(int size, int wtSize, float sampleRate, float makeupGain);
+    void init(int size, int wtSize, float makeupGain);
     
     void push(float val, int index);
     

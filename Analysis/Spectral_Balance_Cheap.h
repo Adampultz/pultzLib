@@ -6,6 +6,7 @@
 #ifndef Spectral_Balance_hpp
 #define Spectral_Balance_hpp
 
+#include "Definitions.hpp"
 #include <stdio.h>
 #include <cstdint>
 #include <algorithm>
@@ -15,15 +16,14 @@
 #include "fundamentals.hpp"
 #include "Fast_Math.hpp"
 
-class Spectral_Balance_Cheap
-{
+class Spectral_Balance_Cheap : public Definitions {
 public:
     Spectral_Balance_Cheap(){}
-    Spectral_Balance_Cheap(float filterFrequency, float rmsFreq, float sampleRate);
+    Spectral_Balance_Cheap(float filterFrequency, float rmsFreq);
     
     ~Spectral_Balance_Cheap() {}
    
-    void initialise(float filterFrequency, float rmsFreq, float sampleRate);
+    void init(float filterFrequency, float rmsFreq);
     
     void setFrequency(float filterFrequency);
     
@@ -37,16 +37,10 @@ private:
 
     float filterFreq_;
     float rmsFreq_;
-    float sampleRate_;
-    float inverseSampleRate_;
     float response_;
-    float nyquist_;
-    float nyquist_Adjusted;
+    float nyquist_Adjusted_;
     float xOverFreq_;
     float integrator_;
-    float xOverLow;
-    float xOverHigh;
-    float difference;
     
     RMS rmsLow;
     RMS rmsHigh;

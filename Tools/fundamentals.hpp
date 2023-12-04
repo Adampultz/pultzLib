@@ -36,6 +36,22 @@ if (x > max) x = max;
 return x;
 }
 
+/* Constrict a value to min */
+template <typename t>
+t clamp2min(t x, t min)
+{
+if (x < min) x = min;
+return x;
+}
+
+/* Constrict a value to max */
+template <typename t>
+t clamp2max(t x, t max)
+{
+if (x > max) x = max;
+return x;
+}
+
 /* Compute the fractional value of a zero-crossing */
 template <typename t>
 t frac_ZC(int x_m1, float y, float y_m1) {
@@ -75,6 +91,13 @@ static inline float log_scale(float y1, float shape)
 {
 	float x1 = 1.0 / (exp(shape) - 1.0);
 	 return (exp(y1 * shape) - 1.0) * x1;
+}
+
+static inline int nextPow2(int val){
+    int k = 1;
+      while (k < val)
+        k *= 2;
+      return k;
 }
 
 

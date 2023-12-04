@@ -1,18 +1,18 @@
 /***** DCBlock.cpp *****/
 
 #include "DCBlock.h"
-#include <cmath>
+
+using namespace pultzLib;
 
 // Constructor taking arguments for sample rate and table data
-DCBlock::DCBlock(float frequency, float sampleRate) {
-	setup(frequency, sampleRate);
+DCBlock::DCBlock(float frequency) {
+	init(frequency);
 }
 
-void DCBlock::setup(float frequency, float sampleRate)
+void DCBlock::init(float frequency)
 {
 	frequency_ = frequency;
-	inverseSampleRate_ = 1.0f / sampleRate;
-	coeff_ = 1.0f - (2.0f * M_PI * frequency_ / sampleRate);
+	coeff_ = 1.0f - (2.0f * M_PI * frequency_ / g_SampleRate);
 	x_ = 0.0f;
 	y_ = 0.0f;
 	y_m1 = 0.0f;
@@ -21,9 +21,8 @@ void DCBlock::setup(float frequency, float sampleRate)
 
 // Set the frequency 
 void DCBlock::setFrequency(float frequency) {
-coeff_ = 1.0f - (2.0f * M_PI * frequency_ *  inverseSampleRate_);
+coeff_ = 1.0f - (2.0f * M_PI * frequency_ * g_SampleDur);
 }
-
 
 // Filter function
 float DCBlock::process(float in) {

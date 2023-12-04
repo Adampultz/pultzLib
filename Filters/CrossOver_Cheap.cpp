@@ -3,14 +3,11 @@
 
 #include "CrossOver_Cheap.h"
 
-CrossOver_Cheap::CrossOver_Cheap(float frequency, float sampleRate){
-    setup(frequency = 0.1, sampleRate = 48000.0);
-    inverseSampleRate_ = 1.0f / sampleRate;
+CrossOver_Cheap::CrossOver_Cheap(float frequency){
+    init(frequency = 0.1);
 }
 
-void CrossOver_Cheap::setup(float frequency, float sampleRate){
-    inverseSampleRate_ = 1.0f / sampleRate;
-    }
+void CrossOver_Cheap::init(float frequency){}
     
 void CrossOver_Cheap::process(float value, float frequency){  // TODO: return array of high and low values
     float x_ = value;

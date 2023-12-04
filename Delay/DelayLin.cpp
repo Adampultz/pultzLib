@@ -6,32 +6,30 @@
 
 using namespace pultzLib;
 
-DelayLin::DelayLin(float maxDelayTime, float delayTime, float feedBack, float sampleRate) {
-	init(maxDelayTime = 1.0, delayTime = 0.2, feedBack = 0.0, sampleRate = 48000);
+DelayLin::DelayLin(float maxDelayTime, float delayTime, float feedBack) {
+	init(maxDelayTime = 1.0, delayTime = 0.2, feedBack = 0.0);
 }
 
-void DelayLin::init(float maxDelayTime, float delayTime, float feedBack, float sampleRate)
-{
-    delayTime_ = delayTime * sampleRate;
-	maxDelayTime_ = maxDelayTime * sampleRate;
+void DelayLin::init(float maxDelayTime, float delayTime, float feedBack) {
+    delayTime_ = delayTime * g_SampleRate;
+	maxDelayTime_ = maxDelayTime * g_SampleRate;
     buffer_.init(maxDelayTime_, delayTime_);
 	feedBack_ = feedBack;
-	sampleRate_ = sampleRate;
 }
 
 void DelayLin::setDelayTime(float delayTime) {
-delayTime_ = delayTime * sampleRate_;
+    delayTime_ = delayTime * g_SampleRate;
     buffer_.setReadIndex(delayTime_);
 }
 
 void DelayLin::setFeedback(float feedBack) {
-feedBack_ = feedBack;
+    feedBack_ = feedBack;
 }
 
 float DelayLin::process(float in) {
 	
     float delay = buffer_.read();
-    buffer_.write(in + (delay * feedBack_));
+    buffer_.writePow2(in + (delay * feedBack_));
 			
 	return delay;
 }

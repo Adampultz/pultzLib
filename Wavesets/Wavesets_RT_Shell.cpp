@@ -7,27 +7,27 @@
 
 using namespace pultzLib;
 
-Wavesets_RT_Shell::Wavesets_RT_Shell(int sampleRate, float analysisWindow, int minWindowSize, float ampThreshold,
-                                     int repeats, int increase, int wsNum){
-    setup(sampleRate, analysisWindow, minWindowSize, ampThreshold, repeats, increase, wsNum);
+Wavesets_RT_Shell::Wavesets_RT_Shell(float analysisWindow, int minWindowSize, float ampThreshold, int repeats, int increase, int wsNum){
+    init(analysisWindow, minWindowSize, ampThreshold, repeats, increase, wsNum);
 }
 
-void Wavesets_RT_Shell::setup(int sampleRate, float analysisWindow, int minWindowSize, float ampThreshold, int repeats,
+void Wavesets_RT_Shell::init(float analysisWindow, int minWindowSize, float ampThreshold, int repeats,
                               int increase, int wsNum){
     analysisWindowSec_ = analysisWindow;
     wavesets_RT = new Wavesets_RT[3];
-    sampleRate_ = sampleRate;
     minWinSize_ = minWindowSize;
     ampThreshold_ = ampThreshold;
     numRepeats_ = repeats;
     wavesetIncrement_ = increase;
     wsNum_ = wsNum;
     wavesetRTinfo_.resize(3, std::vector<std::vector<float>>(1));
+    
     for (int i = 0; i < 3; i++){
-    	analysisWindow_[i] = analysisWindowSec_ * sampleRate_;
-        wavesets_RT[i].setup(analysisWindow_[i], minWinSize_, ampThreshold_);
+        analysisWindow_[i] = analysisWindowSec_ * g_SampleRate;
+        wavesets_RT[i].init(analysisWindow_[i], minWinSize_, ampThreshold_);
         wavesetRTinfo_[i].push_back({0, 0, 0, 0, 0, 0});
     }
+    
     audioBuffer_.resize(3, std::vector<float>(analysisWindow_[0]));
     bufChange_ = true;
     wsPlay_ = false;
@@ -90,18 +90,18 @@ float Wavesets_RT_Shell::process(float source){
             if (audioBufReadIndex_ > 2)
                 audioBufReadIndex_ = 0;
                 
-        	 analysisWindow_[audioBufWriteIndex_] = analysisWindowSec_ *  sampleRate_; // Compute length of next analysis window in samples
+            analysisWindow_[audioBufWriteIndex_] = analysisWindowSec_ *  g_SampleRate; // Compute length of next analysis window in samples
             
             if (mutePlay == true){ // If flag is set for initial buffer fill
-            if (audioBufWriteIndex_ > 1){ 
-                wsPlay_ = true; // Set to true when write buffer 0 and 1 are full
-                bufChange_ = false;
-                mutePlay = false;
-            }
+                if (audioBufWriteIndex_ > 1){
+                    wsPlay_ = true; // Set to true when write buffer 0 and 1 are full
+                    bufChange_ = false;
+                    mutePlay = false;
+                }
             }
             
             if (wsPlay_ == true)
-            bufChange_ = false;
+                bufChange_ = false;
             
         } else {
             if (wsPlay_ == true)
@@ -127,6 +127,7 @@ float Wavesets_RT_Shell::process(float source){
            bufChange_ = true;
            
            audioBufReadIndex_++;
+           
            if (audioBufReadIndex_ > 2)
                audioBufReadIndex_ = 0;
            

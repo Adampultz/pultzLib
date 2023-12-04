@@ -8,14 +8,12 @@
 
 #include "Integrator.h"
 
-Integrator::Integrator(float rate, float sampleRate){
-    setup(rate = 15.0, sampleRate = 48000.0);
+Integrator::Integrator(float rate){
+    init(rate = 15.0);
 }
 
-void Integrator::setup(float rate, float sampleRate){
+void Integrator::init(float rate){
     rate_ =  1.0f / rate;
-    sampleRate_ = sampleRate;
-    inverseSampleRate_ = 1.0f / sampleRate;
 }
 
 float Integrator::process(float val){

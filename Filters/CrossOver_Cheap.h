@@ -15,15 +15,14 @@
 #include <cmath>
 #include <vector>
 
-class CrossOver_Cheap
-{
+class CrossOver_Cheap {
 public:
     CrossOver_Cheap(){}
-    CrossOver_Cheap(float frequency, float sampleRate);
+    CrossOver_Cheap(float frequency);
     
     ~CrossOver_Cheap() {}
    
-    void setup(float frequency, float sampleRate);
+    void init(float frequency);
     
     void setFrequency(float frequency);
     
@@ -33,8 +32,6 @@ public:
     float getHigh();
     
 private:
-    float sampleRate_;
-    double inverseSampleRate_;
     float w_c;
     float a_;
 	float b_0;

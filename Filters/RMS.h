@@ -2,19 +2,21 @@
 
 #pragma once
 
+#include "Definitions.hpp"
 #include <stdio.h>
 #include <cmath>
 #include "Utilities.hpp"
 
 
-class RMS {
+class RMS : public Definitions {
 	
 public:
 
-	RMS() {}													// Default constructor
-	RMS(float frequency, float sRate);
+	RMS() {}
+    // Default constructor
+	RMS(float frequency);
 			  
-	void setup(float frequency = 10, float sRate = 48000); 		
+	void init(float frequency = 10); 		
 	
 	void setFrequency(float frequency);
 	
@@ -32,6 +34,4 @@ private:
 	float b1_;
 	float ym1_;
 	float frequency_;
-	float sRate_;
-	float inverseSampleRate_;
 };

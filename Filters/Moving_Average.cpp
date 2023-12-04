@@ -16,12 +16,12 @@ Moving_Average::Moving_Average(int size){
 void Moving_Average::init(int size){
     size_ = size;
     sizeReciprocal_ = 1.0 / size_;
-    buffer.init(size);
+    buffer.init(size_);
 }
 
 float Moving_Average::process(float s){
     float oldestVal = buffer.getOldest();
-    buffer.write(s);
+    buffer.writePow2(s);
     sum += s;
     sum -= oldestVal;
     float average = sum * sizeReciprocal_;

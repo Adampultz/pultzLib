@@ -9,18 +9,17 @@
 
 using namespace pultzLib;
 
-Adaptive_Comb::Adaptive_Comb(float initFreq, float ampDiffThresh, float schmittLow, float schmittHigh, float valSmoothing, float sampleRate){
-    init(initFreq, ampDiffThresh, schmittLow, schmittHigh, valSmoothing, sampleRate);
+Adaptive_Comb::Adaptive_Comb(float initFreq, float ampDiffThresh, float schmittLow, float schmittHigh, float valSmoothing){
+    init(initFreq, ampDiffThresh, schmittLow, schmittHigh, valSmoothing);
     }
     
-    void Adaptive_Comb::init(float initFreq, float ampDiffThresh, float schmittLow, float schmittHigh, float valSmoothing, float sampleRate){
+    void Adaptive_Comb::init(float initFreq, float ampDiffThresh, float schmittLow, float schmittHigh, float valSmoothing){
         delTime_ = 1.0 / initFreq;
-        sampleRate_ = sampleRate;
         ampDiffThresh_ = ampDiffThresh;
-        ratioSmooth.setFc(valSmoothing, sampleRate_);
-        fbSignSmooth.setFc(10, sampleRate_);
+        ratioSmooth.setFc(valSmoothing);
+        fbSignSmooth.setFc(10);
         schmitt_trigger.init(schmittLow, schmittHigh);
-        delayLin.init(0.8, delTime_, 0.8, sampleRate_);
+        delayLin.init(0.8, delTime_, 0.8);
         freq_ = 440;
     }
     

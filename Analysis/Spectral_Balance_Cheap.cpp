@@ -1,22 +1,19 @@
 #include "Spectral_Balance_Cheap.h"
 
-Spectral_Balance_Cheap::Spectral_Balance_Cheap(float filterFrequency, float rmsFreq, float sampleRate){
-    initialise(0.1, 10.0, 48000.0);
+Spectral_Balance_Cheap::Spectral_Balance_Cheap(float filterFrequency, float rmsFreq){
+    init(0.1, 10.0);
 }
 
-void Spectral_Balance_Cheap::initialise(float filterFrequency, float rmsFreq, float sampleRate){
+void Spectral_Balance_Cheap::init(float filterFrequency, float rmsFreq){
     filterFreq_ = filterFrequency;
     rmsFreq_ = rmsFreq;
-    sampleRate_ = sampleRate;
-    inverseSampleRate_ = 1.0f / sampleRate_;
-    response_ = rmsFreq * inverseSampleRate_;
-    nyquist_ = sampleRate_ / 2.0f;
-    nyquist_Adjusted = nyquist_ * 0.66333f; // Adjust Nyquist by scaling factor
-    crossOver.setup(filterFreq_, sampleRate_);
-    rmsLow.setup(rmsFreq_, sampleRate_);
-    rmsHigh.setup(rmsFreq_, sampleRate_);
-    rmsDiffDivide.setup(rmsFreq_, sampleRate_);
-    integrator.setup(rmsFreq_, sampleRate_);
+    response_ = rmsFreq * g_SampleDur;
+    nyquist_Adjusted_ = g_Nyquist * 0.66333f; // Adjust Nyquist by scaling factor
+    crossOver.init(filterFreq_);
+    rmsLow.init(rmsFreq_);
+    rmsHigh.init(rmsFreq_);
+    rmsDiffDivide.init(rmsFreq_);
+    integrator.init(rmsFreq_);
     xOverFreq_ = 0.1f;
 }
 
@@ -26,7 +23,7 @@ void Spectral_Balance_Cheap::setFrequency(float filterFrequency){
 
 void Spectral_Balance_Cheap::setRMSFreq(float rmsFreq){
     rmsFreq_ = rmsFreq;
-    response_ = rmsFreq * inverseSampleRate_;
+    response_ = rmsFreq * g_SampleDur;
  }
 
 void Spectral_Balance_Cheap::process(float value){
@@ -35,13 +32,13 @@ void Spectral_Balance_Cheap::process(float value){
     
     float rms = clamp2(rmsDiffDivide.process(value), 0.0001f, 1.0f); // Constrain rms
     
-    xOverLow = crossOver.getLow(); // ToDo: make crossover spit out tuple of low and high
-    xOverHigh = crossOver.getHigh();
+    float xOverLow = crossOver.getLow(); // ToDo: make crossover spit out tuple of low and high
+    float xOverHigh = crossOver.getHigh();
     
     xOverLow = rmsLow.process(xOverLow);
     xOverHigh = rmsHigh.process(xOverHigh);
     
-    difference = xOverHigh - xOverLow;
+    float difference = xOverHigh - xOverLow;
     
     difference /=  rms;
     
@@ -51,10 +48,10 @@ void Spectral_Balance_Cheap::process(float value){
     
     integrator_ = clamp2(integrator_, 0.0f, 1.0f); //Constrain integrator values
     
-    integrator_ = powf(integrator_, 2.0f);
+    integrator_ = powf_fast(integrator_, 2.0f);
 }
 
 float Spectral_Balance_Cheap::getTendencyHZ(){
-    xOverFreq_ = integrator_ * nyquist_Adjusted;
+    xOverFreq_ = integrator_ * nyquist_Adjusted_;
     return xOverFreq_;
 }

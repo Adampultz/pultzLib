@@ -6,12 +6,10 @@
 // Constructor taking arguments for sample rate and table data
 EnvelopeFollower::EnvelopeFollower() {}
 
-void EnvelopeFollower::setup(float attack, float decay, float sampleRate)
+void EnvelopeFollower::init(float attack, float decay)
 {
-	sampleRate_ = sampleRate;
-	inverseSampleRate_ = 1.0 / sampleRate;
-	gEnvAtt_ = powf(exp(-1.0 / attack), inverseSampleRate_);
-	gEnvDecay_ = powf(exp(-1.0 / decay), inverseSampleRate_);
+    gEnvAtt_ = powf(exp(-1.0 / attack), g_SampleDur);
+    gEnvDecay_ = powf(exp(-1.0 / decay), g_SampleDur);
 	statEnvAtt = 1.0 - gEnvAtt_;
 	statEnvDec = 1.0 - gEnvDecay_;
 }
@@ -34,8 +32,8 @@ float EnvelopeFollower::getdb(){
 
 void EnvelopeFollower::calculateCoefficients(float attack, float decay)
 {
-	gEnvAtt_ = pow(exp(-1.0 / attack_), inverseSampleRate_);
-gEnvDecay_ =  pow(exp(-1.0 / decay_), inverseSampleRate_);
+    gEnvAtt_ = pow(exp(-1.0 / attack_), g_SampleDur);
+    gEnvDecay_ =  pow(exp(-1.0 / decay_), g_SampleDur);
 }
 
 // Filter function
