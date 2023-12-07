@@ -54,11 +54,17 @@ return x;
 
 /* Compute the fractional value of a zero-crossing */
 template <typename t>
-t frac_ZC(int x_m1, float y, float y_m1) {
-t slope = y - y_m1;
-t b = (slope * x_m1) - y_m1;
+t frac_ZC(float y_2, float y_m1, float bal) {
+t slope = y_2 + (1 + y_m1);
+t b = (slope * bal) - y_m1;
 t xIntCept = b / slope;
 return xIntCept;
+}
+
+template <typename T>
+T linInterpNeg2Pos(T a, T b, T t){
+    float interp = a + (t * (b + (fabs(a))));
+    return interp;
 }
 
 /* Sign operator. 1 if x > 0, -1 if x < 0, 0 if x == 0 */
