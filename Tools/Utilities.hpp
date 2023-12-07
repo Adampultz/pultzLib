@@ -262,6 +262,7 @@ public:
                 lastVal_ = y_;
             }
         }
+
         sampleCount_++;
         y_ = sig;
         
@@ -271,7 +272,7 @@ public:
     void reset(){
         y_ = 0;
         sampleCount_ = 0;
-        lastVal_;
+        lastVal_ = 0;
     }
     
     void setMaxFreq(float maxFreq){
