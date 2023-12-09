@@ -25,9 +25,19 @@ public:
     
     void audioBufPush(float sig);
     
+    float process(float sig, float amp, float ampThreshold, float ampSensitivity);
+    
     void wsWrite(float sig, float amp, float ampThreshold, float ampSensitivity);
     
     void wsMonitor();
+    
+    void setPrimaryVals(float sig);
+    
+    void setSecondaryVals(int lastWsIdx);
+    
+    void setRepeats(float val, float inMin, float inMax, float outMin, float outMax);
+    
+    void getRepeats(float val, float inMin, float inMax, float outMin, float outMax);
     
     float wsPlay();
     
@@ -59,6 +69,7 @@ private:
     unsigned int repeatIdx_;
     unsigned int g_WsIncrement[2] {1, 1};
     unsigned int oldestWsIdx_[2];
+    unsigned int longestWs_;
     
     unsigned int firstSampleInBlock_[2];
     unsigned int lastSampleIndex_[2];
@@ -68,6 +79,7 @@ private:
     unsigned int sampleReadIdx_ = 0;
     unsigned int infoSizeWrapMask_ = 0;
     unsigned int audioBufferReadIdx_;
+    unsigned int maxWsLength_;
     
     float out_;
     float y_m1;

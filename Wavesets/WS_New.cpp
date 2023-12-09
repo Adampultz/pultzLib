@@ -5,6 +5,9 @@
 //  Created by Adam Pultz Melbye on 23/11/2023.
 //
 
+// TODO: Calculate waveset lentgh variance per write buffer
+// TODO: Calculate maximum ws length
+
 #include "WS_New.hpp"
 
 void WS_New::init(int winsize, int maxwinsize, float ampThreshold, int repeats, int increase, int wsNum){
@@ -18,7 +21,7 @@ void WS_New::init(int winsize, int maxwinsize, float ampThreshold, int repeats, 
     for(unsigned int i = 0; i < 2; i++){
         winsize_[i] = winsize;
         audioBuffer_[i].resize(maxwinsize);
-        wavesetRTinfo_[i].resize(infoBufSize, std::vector<float>(4));
+        wavesetRTinfo_[i].resize(infoBufSize, std::vector<float>(6));
         numRepeats_[i] = repeats;
         blockSize_[i] = wsNum;
         g_WsIncrement[i] = repeats;
@@ -28,6 +31,19 @@ void WS_New::init(int winsize, int maxwinsize, float ampThreshold, int repeats, 
     
     bufWrite_[0] = true;
     
+}
+
+void WS_New::setPrimaryVals(float sig){
+    wavesetRTinfo_[writeIdx_][wsIndexCounter_[writeIdx_]][0] = sampleIndex_;
+    wavesetRTinfo_[writeIdx_][wsIndexCounter_[writeIdx_]][1] = sig;
+    wavesetRTinfo_[writeIdx_][wsIndexCounter_[writeIdx_]][2] = wsDetect.getPastVal();
+}
+
+void WS_New::setSecondaryVals(int lastWsIdx){
+    unsigned int idx = wavesetRTinfo_[writeIdx_][lastWsIdx][0] + 1;
+    wavesetRTinfo_[writeIdx_][lastWsIdx][3] = audioBuffer_[writeIdx_][idx];
+    wavesetRTinfo_[writeIdx_][lastWsIdx][4] = wsDetect.getLength();
+    wavesetRTinfo_[writeIdx_][lastWsIdx][5] = wsDetect.getMeanAmp();
 }
 
 void WS_New::wsWrite(float sig, float amp, float ampThreshold, float ampSensitivity){
@@ -40,24 +56,22 @@ void WS_New::wsWrite(float sig, float amp, float ampThreshold, float ampSensitiv
         
         // If waveset start detected
         if (wsTrue == true){
-            // register location (sampleCount_) in audio buffer and waveset index.
-            wavesetRTinfo_[writeIdx_][wsIndexCounter_[writeIdx_]][0] = sampleIndex_;
-            wavesetRTinfo_[writeIdx_][wsIndexCounter_[writeIdx_]][1] = sig;
-            wavesetRTinfo_[writeIdx_][wsIndexCounter_[writeIdx_]][2] = wsDetect.getPastVal();
-            
-            
+            this->setPrimaryVals(sig);
+                        
             // If this is not the first write cycle or the first waveset detection, save the value of
-            //the second sample in the previous waveset, to use for linear interpolation
+            //the second sample in the previous waveset, to use be used for linear interpolation
+            
+            unsigned int lastWsIdx = wsIndexCounter_[writeIdx_] - 1;
+            
             if (bufFull_ == true){
                 // Last waveset index, wrapped bitwise
-                unsigned int lastWsIdx = wsIndexCounter_[writeIdx_] - 1;
                 lastWsIdx &= infoSizeWrapMask_;
                 // Location of second sample in last waveset
-                unsigned int idx = wavesetRTinfo_[writeIdx_][lastWsIdx][0] + 1;
-                wavesetRTinfo_[writeIdx_][lastWsIdx][3] = audioBuffer_[writeIdx_][idx];
+                this->setSecondaryVals(lastWsIdx);
             } else if (wsIndexCounter_[writeIdx_] != 0){
-                unsigned int idx = wavesetRTinfo_[writeIdx_][wsIndexCounter_[writeIdx_] - 1][0] + 1;
-                wavesetRTinfo_[writeIdx_][wsIndexCounter_[writeIdx_] - 1][3] = audioBuffer_[writeIdx_][idx];
+                this->setSecondaryVals(lastWsIdx);
+            } else if (wsIndexCounter_[writeIdx_] == 0){
+                this->setPrimaryVals(sig);
             }
             
             numWs_[writeIdx_]++; // Increment total number of wavesets
@@ -68,7 +82,7 @@ void WS_New::wsWrite(float sig, float amp, float ampThreshold, float ampSensitiv
         }
         
         if (bufFull_ == true){
-            // If the readpointer reaches the sample index of the oldest waveset in the buffer
+            // If the write pointer reaches the sample index of the oldest waveset in the buffer
             if (sampleIndex_ == wavesetRTinfo_[writeIdx_][oldestWsIdx_[writeIdx_]][0]){
                 oldestWsIdx_[writeIdx_]++; // Increment oldest waveset
                 oldestWsIdx_[writeIdx_] &= infoSizeWrapMask_;
@@ -81,8 +95,6 @@ void WS_New::wsWrite(float sig, float amp, float ampThreshold, float ampSensitiv
         audioBuffer_[writeIdx_][sampleIndex_] = sig; // Write sample to buffer
         sampleIndex_++;
         // If the write pointer has exceeded the end of the buffer minus the minimum sample count for highest frequency (sample rate divided by maximum frequency)
-        
-        
         
         if (sampleIndex_ >= winsize_[writeIdx_]){
             
@@ -119,93 +131,9 @@ void WS_New::wsWrite(float sig, float amp, float ampThreshold, float ampSensitiv
     }
 }
 
-//void WS_New::wsWrite(float sig, float amp, float ampThreshold, float ampSensitivity){
-//
-//    if (bufWrite_[writeIdx_] == true){
-//        float source = sig;
-//
-//        static int counterTest;
-//
-//        // Returns true if waveset start detected, otherwise false
-//        bool wsTrue = wsDetect.process((float) sig, amp, ampThreshold, ampSensitivity);
-//
-//        // If waveset start detected
-//        if (wsTrue == true){
-//            // register location (sampleCount_) in audio buffer and waveset index.
-//            wavesetRTinfo_[writeIdx_][wsIndexCounter_[writeIdx_]][0] = sampleIndex_;
-//            wavesetRTinfo_[writeIdx_][wsIndexCounter_[writeIdx_]][1] = sig;
-//            wavesetRTinfo_[writeIdx_][wsIndexCounter_[writeIdx_]][2] = wsDetect.getPastVal();
-//            wsIndexCounter_[writeIdx_]++;  // Update waveset index
-//        }
-//
-////        sampleIndex_ = audioBuffer_[writeIdx_].getWritepointer();  // Get sample count from buffer object
-//        audioBuffer_[writeIdx_][sampleIndex_] = sig; // Write sample to buffer
-//        sampleIndex_++;
-//        counterTest++;
-//        // If the write pointer has exceeded the end of the buffer minus the minimum sample count for highest frequency (sample rate divided by maximum frequency)
-//
-//
-//        if (finish_ == true){
-//
-//            // If write pointer has reached end of buffer
-//            if (sampleIndex_ >= winsize_[writeIdx_]){
-//                // Register index of last complete waveset
-//
-////                int lastWsIndx = clamp2((int) (wsIndexCounter_[writeIdx_] - 1), (int) 0, (int) g_Nyquist);
-//                int lastWsIndx = wsIndexCounter_[writeIdx_] - 1;
-//                counterTest;
-//                // Register start of last complete waveset
-//                lastWs_[writeIdx_] = wavesetRTinfo_[writeIdx_][lastWsIndx - 1][0];
-//                // Total num of complete wavesets equals index of last complete waveset
-//                numWs_[writeIdx_] = wsIndexCounter_[writeIdx_];
-//
-//                bufWrite_[writeIdx_] = false; // Deactivate write for current buffer
-//                wsIndexCounter_[writeIdx_] = 0; // Reset waveset counter for current buffer
-//                wsDetect.reset();
-////                finish_ = false;
-//
-//                firstSampleInBlock_[writeIdx_] = wavesetRTinfo_[writeIdx_][writeIdx_][0];
-//                unsigned int lastSampleIndex = blockSize_[writeIdx_];
-//                lastSampleInBlock_[writeIdx_] = wavesetRTinfo_[writeIdx_][lastSampleIndex][0];
-//
-//                sampleIndex_ = 0;
-//                // If this is not the first write cycle
-//                if (readActive_ == true){
-//                    readIdx_ = writeIdx_; // Pass write buffer index to read buffer index
-//
-//                    writeIdx_++;
-////                    writeIdx_ &= wrapMask_;
-//                    if (writeIdx_ >= 3)
-//                        writeIdx_ = 0;
-//
-//                    writeActive_ = false;
-//                    // If the play object is still reading, the write buffer is now paused and will only resume once given permissin by the play object
-//
-//                } else { // If this is the first write cycle
-//                    bufWrite_[writeIdx_] = false;
-//
-//                    if (writeIdx_++ < 2){
-////                        bufWrite_[writeIdx_] = true;
-//
-//                    } else {
-//                        readActive_ = true; // Activate read buffer (only after first write cycle)
-//                        finish_ = false;
-//                    }
-//
-//                    bufWrite_[writeIdx_] = true;
-//
-//                }
-//            }
-//            // If finish_ = false;
-//        } else {
-//            // If write pointer has reached end of buffer
-//            if (sampleIndex_ >= winsize_[writeIdx_]){
-//                sampleIndex_ = 0;
-//                wsIndexCounter_[writeIdx_] = 0; // Reset waveset counter
-//            }
-//        }
-//    }
-//}
+void WS_New::setRepeats(float val, float inMin, float inMax, float outMin, float outMax){
+    int numReps = (int) mapLin((float) val, inMin, inMax, outMin, outMax, true);
+}
 
 
 bool WS_New::getWsFlag(){
@@ -230,7 +158,6 @@ float WS_New::wsPlay(){
                 interp_ = false;
             }
             
-
             sampleReadIdx_++;
             
             audioBufferReadIdx_ = sampleReadIdx_ + firstSampleInBlock_[readIdx_];
@@ -240,8 +167,6 @@ float WS_New::wsPlay(){
                 sampleReadIdx_ = 0;
                 firstSampleInBlock_[readIdx_] = 0;
             }
-            
-            
             
             if (audioBufferReadIdx_ == newestSampleInBuffer_[readIdx_]){
                 
@@ -269,6 +194,7 @@ float WS_New::wsPlay(){
                 newestWsinBuffer &= infoSizeWrapMask_;
                 
                 newestSampleInBuffer_[readIdx_] = wavesetRTinfo_[readIdx_][newestWsinBuffer][0] - 1;
+                
                 if (newestSampleInBuffer_[readIdx_] < 0)
                     newestSampleInBuffer_[readIdx_] = winsize_[readIdx_] - 1;
                 
@@ -284,37 +210,32 @@ float WS_New::wsPlay(){
             } else if (audioBufferReadIdx_ == lastSampleInBlock_[readIdx_]){
                     
                 interp_ = true;
-                    sampleReadIdx_ = 0; // Reset sample index
+                sampleReadIdx_ = 0; // Reset sample index
                     
-                    repeatIdx_++;
+                repeatIdx_++;
                     
-                    if (repeatIdx_ >= numRepeats_[readIdx_]){
-                        wsReadIndex_ += g_WsIncrement[readIdx_];
-                        wsReadIndex_ &= infoSizeWrapMask_;
+                if (repeatIdx_ >= numRepeats_[readIdx_]){
+                    wsReadIndex_ += g_WsIncrement[readIdx_];
+                    wsReadIndex_ &= infoSizeWrapMask_;
                         
-                        firstSampleInBlock_[readIdx_] = wavesetRTinfo_[readIdx_][wsReadIndex_][0];
-                        unsigned int lastSampleIndex = wsReadIndex_ + blockSize_[readIdx_];
-                        lastSampleInBlock_[readIdx_] = wavesetRTinfo_[readIdx_][lastSampleIndex][0] - 1;
-                        if (lastSampleInBlock_[readIdx_] < 0)
-                            lastSampleInBlock_[readIdx_] = winsize_[readIdx_] - 1;
+                    firstSampleInBlock_[readIdx_] = wavesetRTinfo_[readIdx_][wsReadIndex_][0];
+                    unsigned int lastSampleIndex = wsReadIndex_ + blockSize_[readIdx_];
+                    lastSampleInBlock_[readIdx_] = wavesetRTinfo_[readIdx_][lastSampleIndex][0] - 1;
                         
+                    if (lastSampleInBlock_[readIdx_] < 0)
+                        lastSampleInBlock_[readIdx_] = winsize_[readIdx_] - 1;
+                                                        
+                    repeatIdx_ = 0;
+                    audioBufferReadIdx_ = firstSampleInBlock_[readIdx_];
                         
-                        repeatIdx_ = 0;
-                        audioBufferReadIdx_ = firstSampleInBlock_[readIdx_];
-                        
-                    } else {
-                        audioBufferReadIdx_ = sampleReadIdx_ + firstSampleInBlock_[readIdx_];
-                    }
-                
+                } else {
+                    audioBufferReadIdx_ = sampleReadIdx_ + firstSampleInBlock_[readIdx_];
                 }
-            
+            }
         }
     return out;
 }
 
 
-void WS_New::wsMonitor(){
-    
-}
 
 
