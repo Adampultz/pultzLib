@@ -92,6 +92,16 @@ static inline float mapLin(float x, float in_min, float in_max, float out_min, f
 	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+static inline float mapLin(float x, float in_min, float in_max, float out_min, float out_max, bool clamp)
+{
+    float y = (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    
+    if (clamp == true)
+        y = clamp2((float) y, (float) out_min, (float) out_max);
+    
+    return y;
+}
+
 /* Scale a value logarithmically */
 static inline float log_scale(float y1, float shape)
 {
