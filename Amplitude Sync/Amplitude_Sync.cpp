@@ -8,11 +8,11 @@ using namespace pultzLib;
     sampleRate = sample rate
     makeUpGain = for adjusting gain per string after syncing
      */
-        Amplitude_Sync::Amplitude_Sync(int size, int wtSize, float sampleRate, float makeupGain){
-            init(size, wtSize, sampleRate, makeupGain);
+        Amplitude_Sync::Amplitude_Sync(int size, int wtSize, float makeupGain){
+            init(size, wtSize, makeupGain);
         };
         
-       void Amplitude_Sync::init(int size, int wtSize, float sampleRate, float makeupGain){
+       void Amplitude_Sync::init(int size, int wtSize, float makeupGain){
            size_ = size;
            wtSize_ = wtSize;
            makeUpGain_ = makeupGain;
@@ -51,7 +51,7 @@ using namespace pultzLib;
                 int indexDouble = n * 2;
                 weightsLeftIndex_[n] = indexDouble;
                 weightsRightIndex_[n] = indexDouble + 1;
-                oscillator[n].setup(0.1, wtSize_, sampleRate);
+                oscillator[n].setup(0.1, wtSize_, g_SampleRate);
             }
        }
         

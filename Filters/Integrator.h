@@ -16,9 +16,9 @@ class Integrator
 {
 public:
     Integrator(){}
-    Integrator(float rate, float sampleRate);
+    Integrator(float rate);
     
-    void setup(float rate, float sampleRate);
+    void init(float rate);
     
     ~Integrator() {}
     
@@ -27,8 +27,6 @@ public:
 private:
     float y_n_m1;
     float rate_;
-    float sampleRate_;
-    float inverseSampleRate_;
 };
 
 #endif /* Integrator_h */

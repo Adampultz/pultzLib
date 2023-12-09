@@ -4,17 +4,12 @@
 
 
 // Constructor taking arguments for sample rate and table data
-RMS::RMS(float frequency, float sRate) {
-	setup(frequency, sRate);
-}
+RMS::RMS(float frequency) {}
 
-void RMS::setup(float frequency, float sRate)
+void RMS::init(float frequency)
 {
 	ym1_ = 0.0f;
-	frequency_ = frequency;
-	sRate_ = sRate;
-	inverseSampleRate_ = 1.0f / sRate;
-	b1_ = expf(-2.0f * (float)M_PI * (frequency_ * inverseSampleRate_));
+	b1_ = expf(-2.0f * (float)M_PI * (frequency * g_SampleDur));
 	a0_ = 1.0f - b1_;
 }
 
@@ -31,8 +26,7 @@ float RMS::getDbNorm()
 
 // Set the frequency 
 void RMS::setFrequency(float frequency) {
-    frequency_ = frequency;
-	b1_ = expf(-2.0f * (float)M_PI * (frequency_ * inverseSampleRate_));
+	b1_ = expf(-2.0f * (float)M_PI * (frequency * g_SampleDur));
     a0_ = 1.0f - b1_;
 }
 

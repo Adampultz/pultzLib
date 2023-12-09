@@ -7,6 +7,7 @@
 #ifndef Wavesets_RT_Shell_h
 #define Wavesets_RT_Shell_h
 
+#include "Definitions.hpp"
 #include <stdio.h>
 #include "Wavesets_RT.h"
 #include <cmath>
@@ -17,9 +18,9 @@ class Wavesets_RT_Shell
 {
 public:
     Wavesets_RT_Shell(){}
-    Wavesets_RT_Shell(int sampleRate, float analysisWindow, int minWindowSize, float ampThreshold, int repeats, int increase, int wsNum);
+    Wavesets_RT_Shell(float analysisWindow, int minWindowSize, float ampThreshold, int repeats, int increase, int wsNum);
     
-    void setup(int sampleRate, float analysisWindow, int minWindowSize, float ampThreshold, int repeats, int increase, int wsNum);
+    void init(float analysisWindow, int minWindowSize, float ampThreshold, int repeats, int increase, int wsNum);
     
     void setVariables(int repeats, int increase, int wsNum);
     
@@ -56,7 +57,6 @@ private:
     bool bufChange_;
     bool wsPlay_;
     bool mutePlay;
-    int sampleRate_ = 48000;
     int analysisWindow_[3];
     float analysisWindowSec_;
     int readPointer_;

@@ -18,14 +18,13 @@
 
 namespace pultzLib {
 
-class Adaptive_Comb{
+class Adaptive_Comb {
     
 public:
     Adaptive_Comb(){};
-    Adaptive_Comb(float initFreq, float ampDiffThresh, float schmittLow, float schmittHigh, float valSmoothing, float sampleRate);
-    
-    
-    void init(float initFreq, float ampDiffThresh, float schmittLow, float schmittHigh, float valSmoothing, float sampleRate);
+    Adaptive_Comb(float initFreq, float ampDiffThresh, float schmittLow, float schmittHigh, float valSmoothing);
+        
+    void init(float initFreq, float ampDiffThresh, float schmittLow, float schmittHigh, float valSmoothing);
     
     void setVariables(float freq, float amp, float ampDiff);
     
@@ -46,7 +45,6 @@ private:
     default_random_engine generator;
     
     float ratios_[5] = {1.5, 1.25, 0.875, 1.125, 1.375};
-    float sampleRate_;
     float delTime_;
     float ampDiffThresh_;
     float freq_;

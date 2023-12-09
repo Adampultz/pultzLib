@@ -19,11 +19,11 @@ class CrossOver
 {
 public:
     CrossOver(){}
-    CrossOver(float frequency, float sampleRate);
+    CrossOver(float frequency);
     
     ~CrossOver() {}
    
-    void setup(float frequency, float sampleRate);
+    void setup(float frequency);
     
     void setFrequency(float frequency);
     
@@ -33,8 +33,6 @@ public:
     float getHigh();
     
 private:
-    float sampleRate_;
-    double inverseSampleRate_;
     float w_c;
     float a_;
     float b_0;

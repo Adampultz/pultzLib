@@ -9,6 +9,7 @@
 #include "fundamentals.hpp"
 #include "Fast_Math.hpp"
 #include "Leaky_Integrator.h"
+#include "Delay.hpp"
 
 using namespace pultzLib;
 
@@ -178,6 +179,33 @@ private:
 };
 
 template <class T>
+class RateOfChange
+{
+public:
+    RateOfChange(){}
+    
+    void init(int window, int maxWinSize){
+        delay.init(maxWinSize, window);
+        
+        g_Window = window;
+        g_InvWinSize = 1.0f / g_Window;
+    }
+    
+    T process(T x){
+        T roc = (x - delay.process(x)) * g_InvWinSize;
+        
+        return roc;
+    };
+    
+private:
+    
+    Delay delay;
+    
+    int g_Window = 1;
+    float g_InvWinSize;
+};
+
+template <class T>
 class RunningMaxDyn
 {
 public:
@@ -214,6 +242,79 @@ public:
 private:
     T maxVal_;
     Leaky_Integrator leaky_Integrator;
+};
+
+// For detecting zero crossings from negative/0 to positive. Uses hysterises to filter out noise
+template <class T>
+class WavesetDetect {
+public:
+    
+    WavesetDetect(){}
+    
+    bool process(T sig, float amp, float ampThresh, float ampSensitivity){
+        
+        bool ws_detect = false;
+        
+        float sigAbs = fabsf_fast(sig);
+        float minAmp = meanAmp_ * ampSensitivity;
+        
+        if (sampleCount_ >= minSamps_){
+            if(y_ < 0.0 && sig >= 0.0){
+                ws_detect = true;
+                wsLength_ = sampleCount_;
+                meanAmp_ = ampAccum_ / wsLength_;
+                ampAccum_ = 0;
+                sampleCount_ = 0;
+                lastVal_ = y_;
+            }
+        }
+        
+        ampAccum_ += sigAbs;
+
+        sampleCount_++;
+        y_ = sig;
+        
+        return ws_detect;
+    }
+    
+    unsigned int getLength(){
+        
+        if (wsLength_ > maxWsLength)
+            maxWsLength = wsLength_;
+            
+        return wsLength_;
+    }
+    
+    float getMeanAmp(){
+        return meanAmp_;
+    }
+    
+    void reset(){
+        wsLength_ = 0;
+        meanAmp_ = 0;
+        ampAccum_ = 0;
+        y_ = 0;
+        sampleCount_ = 0;
+        lastVal_ = 0;
+    }
+    
+    void setMaxFreq(float maxFreq){
+        minSamps_ = maxFreq * g_SampleDur;
+    }
+    
+    T getPastVal(){
+        return lastVal_;
+    }
+    
+private:
+    T y_;
+    T lastVal_;
+    T ampAccum_;
+    T meanAmp_;
+    unsigned int sampleCount_;
+    unsigned int wsLength_;
+    unsigned int minSamps_ = 10;
+    unsigned int maxWsLength = minSamps_;
 };
 
 

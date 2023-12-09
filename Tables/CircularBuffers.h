@@ -6,6 +6,7 @@ Buffers
 
 #include <vector>
 #include <cmath>
+#include "fundamentals.hpp"
 
 namespace pultzLib {
 
@@ -15,48 +16,89 @@ template<class T>
 class CircularBuffer {
 public:
 	CircularBuffer() {}	
-	CircularBuffer(int size);
+	CircularBuffer(int size, int readIndex);
+    CircularBuffer(int size);
 			  
-	void init(int size){
+	void init(int size, int readIndex){
         size_ = size;
-        bufferLength_ = (unsigned int) (pow(2, ceil(log(size_) / log(2)))); // Round buffer length to nearest power of 2
-        wrapMask_ = bufferLength_ - 1;
-        buffer_.resize(bufferLength_);
+        readIndex_ = readIndex;
+        unsigned int bufferLength = nextPow2(size); // Round buffer length to nearest power of 2
+        wrapMask_ = bufferLength - 1;
+        buffer_.resize(bufferLength);        
     };
+    
+    void init(int size){
+        size_ = size;
+        unsigned int bufferLength = nextPow2(size); // Round buffer length to nearest power of 2
+        wrapMask_ = bufferLength - 1;
+        buffer_.resize(bufferLength);
+    };
+    
+    // For defining a read and write length shorter than the actual buffer length
+    void setStrictSize(int writeWindow){
+        strictSize_ = writeWindow;
+    }
     
     T getOldest(){ // Always call before write
         return buffer_[writePointer_];
     };
+    
+    void setReadIndex(float value){ //set readIndex in samples
+        readIndex_ = value;
+    };
 	
-	void write(T value){ // Write value to buffer at writepointer index.
+	void writeStrict(T value){ // Write value to buffer at writepointer index.
+        buffer_[writePointer_] = value;
+        if (writePointer_++ >= strictSize_)
+            writePointer_ = 0; 
+    };
+    
+    void writePow2(T value){ // Write value to buffer at writepointer index.
         buffer_[writePointer_] = value;
         writePointer_++;
         writePointer_ &= wrapMask_; // Wrap around bitwise
     };
     
-    int getWritepointer(){
-
-        return writePointer_;
+    void resetWritePointer(){
+        writePointer_ = 0;
     };
     
-    T read(){
+    int getWritepointer(){
+        return writePointer_;
+    };
+
+    T readPow2(){
         int readPointer_ = writePointer_ - readIndex_;
         readPointer_ &= wrapMask_;
+        
+        return buffer_[readPointer_];
+    }
+    
+    T readStrict(){
+        int readPointer_ = writePointer_ - readIndex_;
+        if (readPointer_ >= strictSize_)
+            readPointer_ = 0;
+        
         return buffer_[readPointer_];
     }
 	
+    T read(int index){
+        int readPointer_ = index;
+        float out = buffer_[readPointer_];
+        
+        return out;
+    }
+    
 	~CircularBuffer() {}
 
 private:
 	
 	std::vector<T> buffer_;
-	int size_;
-	int writePointer_;
-	int readPointer_;
-	int actualReadIndex_;
-	int readIndex_;
-	int bufferLength_;
-	int wrapMask_;
+	unsigned int size_;
+    unsigned int strictSize_;
+	unsigned int writePointer_;
+	unsigned int readIndex_;
+	unsigned int wrapMask_;
 	
 };
 
@@ -64,40 +106,10 @@ private:
 
 
 template<class T>
-class CircularBufferC {
+class CircularBufferC : public CircularBuffer<T> {
 public:
     CircularBufferC() {}
     CircularBufferC(int size, int readIndex);
-              
-    void init(int size, int readIndex){
-        readIndex_ = readIndex;
-        size_ = size;
-        bufferLength_ = (unsigned int) (pow(2, ceil(log(size_) / log(2)))); // Round buffer length to nearest power of 2
-        wrapMask_ = bufferLength_ - 1;
-        buffer_.resize(bufferLength_ + 1);
-        writePointer_ = 0;
-    };
-    
-    void setReadIndex(float value){ //set readIndex in samples
-        readIndex_ = value;
-    };
-    
-    T getOldest(){ // Always call before write
-        T out;
-        int pointer = writePointer_;
-        out = buffer_[pointer];
-        return out;
-    };
-    
-    void write(T value){ // Write value to buffer at writepointer index.
-        buffer_[writePointer_] = value;
-        writePointer_++;
-        writePointer_ &= wrapMask_; // Wrap around bitwise
-    };
-    
-    int getWritepointer(){
-        return writePointer_;
-    };
     
     T read(){
         int readPointer_ = writePointer_ - readIndex_;
@@ -130,60 +142,27 @@ private:
     std::vector<T> buffer_;
     int size_;
     int writePointer_;
-    int readPointer_;
-    int actualReadIndex_;
     int readIndex_;
-    int bufferLength_;
     int wrapMask_;
 };
 
 /* Buffer with linear interpolation */
 
 template<class T>
-class CircularBufferLin {
+class CircularBufferLin : public CircularBuffer<T> {
 public:
     CircularBufferLin() {}
     CircularBufferLin(int size, int readIndex);
-              
-    void init(int size, int readIndex){
-        readIndex_ = readIndex;
-        size_ = size;
-        bufferLength_ = (unsigned int) (pow(2, ceil(log(size_) / log(2)))); // Round buffer length to nearest power of 2
-        wrapMask_ = bufferLength_ - 1;
-        buffer_.resize(bufferLength_);
-        writePointer_ = 0;
-    };
-    
-    void setReadIndex(float value){ //set readIndex in samples
-        readIndex_ = value;
-    };
-    
-    T getOldest(){ // Always call before write
-        T out;
-        int pointer = writePointer_;
-        out = buffer_[pointer];
-        return out;
-    };
-    
-    void write(T value){ // Write value to buffer at writepointer index.
-        buffer_[writePointer_] = value;
-        writePointer_++;
-        writePointer_ &= wrapMask_; // Wrap around bitwise
-    };
-    
-    int getWritepointer(){
-        return writePointer_;
-    };
     
     T read(){
         T out;
         
-        int readPointer_ = writePointer_ - readIndex_;
-        readPointer_ &= wrapMask_;
-        int indexBelow = floorf(readPointer_);
+        int readPointer = writePointer_ - readIndex_;
+        readPointer &= wrapMask_;
+        int indexBelow = floorf(readPointer);
         int indexAbove = indexBelow + 1;
         indexAbove &= wrapMask_;
-        float fractionAbove = readPointer_ - indexBelow;
+        float fractionAbove = readPointer - indexBelow;
         float fractionBelow = 1 - fractionAbove;
         
         out = (fractionBelow * buffer_[indexBelow]) + (fractionAbove * buffer_[indexAbove]);
@@ -198,10 +177,7 @@ private:
     std::vector<T> buffer_;
     int size_;
     int writePointer_;
-    int readPointer_;
-    int actualReadIndex_;
     int readIndex_;
-    int bufferLength_;
     int wrapMask_;
 };
 

@@ -1,13 +1,16 @@
 /***** Dc.h *****/
 
 #pragma once
+#include "Definitions.hpp"
+#include <cmath>
+
 
 class DCBlock {
 public:
 	DCBlock() {}													// Default constructor
-	DCBlock(float freq, float sampleRate);
+	DCBlock(float freq);
 			  
-	void setup(float freq, float sampleRate); 		
+	void init(float freq);
 	
 	void setFrequency(float freq);
 	
@@ -23,5 +26,4 @@ private:
 	float x_m1;			// Filter difference equation (x)
 	float y_m1;			 // output of filter (y-1)
 	float frequency_;
-	float inverseSampleRate_;
 };

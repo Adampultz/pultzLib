@@ -36,13 +36,35 @@ if (x > max) x = max;
 return x;
 }
 
+/* Constrict a value to min */
+template <typename t>
+t clamp2min(t x, t min)
+{
+if (x < min) x = min;
+return x;
+}
+
+/* Constrict a value to max */
+template <typename t>
+t clamp2max(t x, t max)
+{
+if (x > max) x = max;
+return x;
+}
+
 /* Compute the fractional value of a zero-crossing */
 template <typename t>
-t frac_ZC(int x_m1, float y, float y_m1) {
-t slope = y - y_m1;
-t b = (slope * x_m1) - y_m1;
+t frac_ZC(float y_2, float y_m1, float bal) {
+t slope = y_2 + (1 + y_m1);
+t b = (slope * bal) - y_m1;
 t xIntCept = b / slope;
 return xIntCept;
+}
+
+template <typename T>
+T linInterpNeg2Pos(T a, T b, T t){
+    float interp = a + (t * (b + (fabs(a))));
+    return interp;
 }
 
 /* Sign operator. 1 if x > 0, -1 if x < 0, 0 if x == 0 */
@@ -70,11 +92,28 @@ static inline float mapLin(float x, float in_min, float in_max, float out_min, f
 	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+static inline float mapLin(float x, float in_min, float in_max, float out_min, float out_max, bool clamp)
+{
+    float y = (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    
+    if (clamp == true)
+        y = clamp2((float) y, (float) out_min, (float) out_max);
+    
+    return y;
+}
+
 /* Scale a value logarithmically */
 static inline float log_scale(float y1, float shape)
 {
 	float x1 = 1.0 / (exp(shape) - 1.0);
 	 return (exp(y1 * shape) - 1.0) * x1;
+}
+
+static inline int nextPow2(int val){
+    int k = 1;
+      while (k < val)
+        k *= 2;
+      return k;
 }
 
 

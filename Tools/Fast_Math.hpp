@@ -6,6 +6,9 @@ Useful for running Bela
 #ifndef Fast_Math_hpp
 #define Fast_Math_hpp
 
+//#include "Definitions.hpp"
+#include <stdio.h>
+
 //#define Bela // Change this if you want to use the regular C++ functions
 
 #ifdef Bela

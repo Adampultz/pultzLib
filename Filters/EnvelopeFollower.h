@@ -1,16 +1,14 @@
 /***** EnvelopeFollower.h *****/
 #pragma once
 
+#include "Definitions.hpp"
 #include "Utilities.hpp"
 
-class EnvelopeFollower {
+class EnvelopeFollower : public Definitions {
 public:
 	EnvelopeFollower();												// Default constructor
-	EnvelopeFollower(float sampleRate);
-	
-	void setSampleRate(float sampleRate);
 			  
-	void setup(float attack, float decay, float sampleRate); 		
+	void init(float attack, float decay); 		
 	
 	void setAttack(float attack);
 	void setDecay(float decay);
@@ -27,8 +25,6 @@ private:
 	float decay_;			// Filter difference equation (x)
 	float inAbs_;
 	float lastOutput_;
-	double sampleRate_;
-	double inverseSampleRate_;
 	float gEnvAtt_;
 	float gEnvDecay_;
 	float statEnvAtt;
